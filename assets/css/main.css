@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors;
+  }
+  
+  /* Form Styles */
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  
+  /* Card Styles */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded-lg p-6 w-96 max-w-md mx-4;
+  }
+  
+  .modal-header {
+    @apply text-lg font-semibold mb-4;
+  }
+  
+  .modal-actions {
+    @apply flex space-x-3;
+  }
+  
+  .modal-button {
+    @apply flex-1;
+  }
+  
+  /* Layout Styles */
+  .section-header {
+    @apply flex items-center justify-between mb-4;
+  }
+  
+  .section-title {
+    @apply text-xl font-semibold text-gray-800;
+  }
+  
+  .section-subtitle {
+    @apply text-sm text-gray-500;
+  }
+  
+  /* Grid Styles */
+  .grid-2 {
+    @apply grid grid-cols-2 gap-2;
+  }
+  
+  .grid-3 {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+  }
+  
+  /* Text Styles */
+  .text-large {
+    @apply text-3xl font-bold text-gray-900;
+  }
+  
+  .text-medium {
+    @apply text-sm text-gray-600;
+  }
+  
+  .text-small {
+    @apply text-sm text-gray-500;
+  }
+  
+  /* Color Styles */
+  .text-success {
+    @apply text-green-600;
+  }
+  
+  .text-danger {
+    @apply text-red-600;
+  }
+  
+  .text-warning {
+    @apply text-yellow-600;
+  }
+  
+  /* Loading Styles */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600;
+  }
+  
+  .loading-container {
+    @apply flex justify-center items-center py-8;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    @apply text-center py-8 text-gray-500;
+  }
+}
