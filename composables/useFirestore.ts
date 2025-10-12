@@ -1,12 +1,12 @@
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  getDocs, 
-  query, 
-  where, 
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
   orderBy,
   onSnapshot,
   type DocumentData,
@@ -20,7 +20,7 @@ export const useFirestore = () => {
     if (!$db) {
       throw new Error('Firebase Firestore is not initialized. Please check your .env file.')
     }
-    
+
     try {
       const docRef = await addDoc(collection($db, collectionName), {
         ...data,
@@ -38,7 +38,7 @@ export const useFirestore = () => {
     if (!$db) {
       throw new Error('Firebase Firestore is not initialized. Please check your .env file.')
     }
-    
+
     try {
       await updateDoc(doc($db, collectionName, docId), {
         ...data,
@@ -54,7 +54,7 @@ export const useFirestore = () => {
     if (!$db) {
       throw new Error('Firebase Firestore is not initialized. Please check your .env file.')
     }
-    
+
     try {
       await deleteDoc(doc($db, collectionName, docId))
     } catch (error) {
@@ -67,12 +67,12 @@ export const useFirestore = () => {
     if (!$db) {
       throw new Error('Firebase Firestore is not initialized. Please check your .env file.')
     }
-    
+
     try {
-      const q = constraints.length > 0 
+      const q = constraints.length > 0
         ? query(collection($db, collectionName), ...constraints)
         : collection($db, collectionName)
-      
+
       const querySnapshot = await getDocs(q)
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -89,11 +89,11 @@ export const useFirestore = () => {
       console.error('Firebase Firestore is not initialized. Please check your .env file.')
       return () => {} // Return empty unsubscribe function
     }
-    
-    const q = constraints.length > 0 
+
+    const q = constraints.length > 0
       ? query(collection($db, collectionName), ...constraints)
       : collection($db, collectionName)
-    
+
     return onSnapshot(q, (querySnapshot) => {
       const docs = querySnapshot.docs.map(doc => ({
         id: doc.id,

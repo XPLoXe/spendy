@@ -1,11 +1,16 @@
 <template>
   <div class="card">
-    <h2 class="section-title expense-form-title">Add Expense</h2>
-    
-    <form @submit.prevent="addExpense" class="expense-form">
+    <h2 class="section-title expense-form-title">
+      Add Expense
+    </h2>
+
+    <form
+      class="expense-form"
+      @submit.prevent="addExpense"
+    >
       <div class="form-group">
         <label class="form-label">Amount</label>
-        <input 
+        <input
           v-model="expense.amount"
           type="number"
           step="0.01"
@@ -13,30 +18,32 @@
           class="input-field"
           placeholder="0.00"
           required
-        />
+        >
       </div>
-      
+
       <div class="form-group">
         <label class="form-label">Description</label>
-        <input 
+        <input
           v-model="expense.description"
           type="text"
           class="input-field"
           placeholder="What did you spend on?"
           required
-        />
+        >
       </div>
-      
+
       <div class="form-group">
         <label class="form-label">Category</label>
-        <select 
+        <select
           v-model="expense.categoryId"
           class="input-field"
           required
         >
-          <option value="">Select a category</option>
-          <option 
-            v-for="category in categories" 
+          <option value="">
+            Select a category
+          </option>
+          <option
+            v-for="category in categories"
             :key="category.id"
             :value="category.id"
           >
@@ -44,8 +51,8 @@
           </option>
         </select>
       </div>
-      
-      <button 
+
+      <button
         type="submit"
         class="btn-primary expense-submit-btn"
         :disabled="!expense.amount || !expense.description || !expense.categoryId"
@@ -72,10 +79,10 @@ const expense = ref({
 
 const addExpense = async () => {
   if (!user.value || !expense.value.amount || !expense.value.description || !expense.value.categoryId) return
-  
+
   try {
     const selectedCategory = categories.value.find(cat => cat.id === expense.value.categoryId)
-    
+
     await addDocument('expenses', {
       amount: parseFloat(expense.value.amount),
       description: expense.value.description,
@@ -84,7 +91,7 @@ const addExpense = async () => {
       categoryColor: selectedCategory?.color || '#3B82F6',
       userId: user.value.uid
     })
-    
+
     // Reset form
     expense.value = {
       amount: '',
@@ -106,7 +113,7 @@ watch(user, () => {
         categories.value = docs as Category[]
       }
     )
-    
+
     onUnmounted(() => {
       unsubscribe()
     })

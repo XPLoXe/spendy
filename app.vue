@@ -4,7 +4,9 @@
     <header class="app-header">
       <div class="header-content">
         <div class="header-brand">
-          <h1 class="app-title">Spendy</h1>
+          <h1 class="app-title">
+            Spendy
+          </h1>
           <span class="app-subtitle">Track your daily expenses</span>
         </div>
         <AuthButton />
@@ -13,18 +15,26 @@
 
     <!-- Main Content -->
     <main class="app-main">
-      <div v-if="!user" class="welcome-section">
+      <div
+        v-if="!user"
+        class="welcome-section"
+      >
         <div class="welcome-content">
-          <h2 class="welcome-title">Welcome to Spendy</h2>
+          <h2 class="welcome-title">
+            Welcome to Spendy
+          </h2>
           <p class="welcome-description">
-            Track your daily expenses like a digital wallet. 
+            Track your daily expenses like a digital wallet.
             Set your balance, categorize expenses, and monitor your spending.
           </p>
           <AuthButton />
         </div>
       </div>
 
-      <div v-else class="dashboard">
+      <div
+        v-else
+        class="dashboard"
+      >
         <!-- Wallet Overview -->
         <div class="grid-3">
           <div class="wallet-section">

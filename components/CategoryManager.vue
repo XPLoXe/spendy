@@ -1,74 +1,81 @@
 <template>
   <div class="card">
     <div class="section-header">
-      <h2 class="section-title">Categories</h2>
-      <button 
-        @click="showAddModal = true"
+      <h2 class="section-title">
+        Categories
+      </h2>
+      <button
         class="btn-primary category-add-btn"
+        @click="showAddModal = true"
       >
         Add Category
       </button>
     </div>
-    
+
     <div class="category-grid">
-      <div 
-        v-for="category in categories" 
+      <div
+        v-for="category in categories"
         :key="category.id"
         class="category-item"
         :style="{ borderColor: category.color + '20', backgroundColor: category.color + '10' }"
       >
-        <div 
+        <div
           class="category-color-dot"
           :style="{ backgroundColor: category.color }"
-        ></div>
+        />
         <span class="category-name">{{ category.name }}</span>
-        <button 
-          @click="deleteCategory(category.id)"
+        <button
           class="category-delete-btn"
+          @click="deleteCategory(category.id)"
         >
           ×
         </button>
       </div>
     </div>
-    
+
     <!-- Add Category Modal -->
-    <div v-if="showAddModal" class="modal-overlay">
+    <div
+      v-if="showAddModal"
+      class="modal-overlay"
+    >
       <div class="modal-content">
-        <h3 class="modal-header">Add New Category</h3>
+        <h3 class="modal-header">
+          Add New Category
+        </h3>
         <div class="category-form">
           <div class="form-group">
             <label class="form-label">Category Name</label>
-            <input 
+            <input
               v-model="newCategory.name"
               type="text"
               class="input-field"
               placeholder="Enter category name"
-            />
+            >
           </div>
           <div class="form-group">
             <label class="form-label">Color</label>
             <div class="color-picker">
-              <button 
+              <button
                 v-for="color in availableColors"
                 :key="color"
-                @click="newCategory.color = color"
                 class="color-option"
                 :class="newCategory.color === color ? 'color-option-selected' : 'color-option-default'"
                 :style="{ backgroundColor: color }"
-              ></button>
+                @click="newCategory.color = color"
+              />
             </div>
           </div>
           <div class="modal-actions">
-            <button 
-              @click="addCategory"
+            <button
               class="btn-primary modal-button"
               :disabled="!newCategory.name || !newCategory.color"
+              @click="addCategory"
             >
               Add Category
             </button>
-            <button 
-              @click="showAddModal = false; resetForm()"
+            <button
               class="btn-secondary modal-button"
+              @click="showAddModal = false; resetForm()"
             >
               Cancel
             </button>
@@ -94,20 +101,20 @@ const newCategory = ref({
 })
 
 const availableColors = [
-  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
   '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
 ]
 
 const addCategory = async () => {
   if (!user.value || !newCategory.value.name || !newCategory.value.color) return
-  
+
   try {
     await addDocument('categories', {
       name: newCategory.value.name,
       color: newCategory.value.color,
       userId: user.value.uid
     })
-    
+
     showAddModal.value = false
     resetForm()
   } catch (error) {
@@ -117,7 +124,7 @@ const addCategory = async () => {
 
 const deleteCategory = async (categoryId: string) => {
   if (!confirm('Are you sure you want to delete this category?')) return
-  
+
   try {
     await deleteDocument('categories', categoryId)
   } catch (error) {
@@ -142,7 +149,7 @@ watch(user, () => {
         categories.value = docs as Category[]
       }
     )
-    
+
     onUnmounted(() => {
       unsubscribe()
     })

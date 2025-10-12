@@ -6,19 +6,19 @@ import { getAnalytics } from 'firebase/analytics'
 export default defineNuxtPlugin(() => {
   try {
     const config = useRuntimeConfig()
-    
+
     // Check if all required environment variables are present
     const requiredVars = [
       'firebaseApiKey',
-      'firebaseAuthDomain', 
+      'firebaseAuthDomain',
       'firebaseProjectId',
       'firebaseStorageBucket',
       'firebaseMessagingSenderId',
       'firebaseAppId'
     ]
-    
+
     const missingVars = requiredVars.filter(varName => !config.public[varName])
-    
+
     if (missingVars.length > 0) {
       console.error('Missing Firebase environment variables:', missingVars)
       console.error('Please create a .env file with your Firebase configuration')
@@ -30,7 +30,7 @@ export default defineNuxtPlugin(() => {
         }
       }
     }
-    
+
     const firebaseConfig = {
       apiKey: config.public.firebaseApiKey,
       authDomain: config.public.firebaseAuthDomain,
@@ -44,7 +44,7 @@ export default defineNuxtPlugin(() => {
     const app = initializeApp(firebaseConfig)
     const auth = getAuth(app)
     const db = getFirestore(app)
-    
+
     // Initialize analytics only on client side
     let analytics = null
     if (process.client) {

@@ -171,8 +171,8 @@ const calculateStats = async () => {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
     const expenses = await getDocuments('expenses', [
-       where('userId', '==', user.value.uid),
-         where('createdAt', '>=', startOfMonth),
+      where('userId', '==', user.value.uid),
+      where('createdAt', '>=', startOfMonth),
       where('createdAt', '<=', endOfMonth)
     ])
 

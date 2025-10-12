@@ -1,9 +1,9 @@
-import { 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut, 
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
   onAuthStateChanged,
-  type User 
+  type User
 } from 'firebase/auth'
 
 export const useAuth = () => {
@@ -15,7 +15,7 @@ export const useAuth = () => {
     if (!$auth) {
       throw new Error('Firebase Auth is not initialized. Please check your .env file.')
     }
-    
+
     try {
       const provider = new GoogleAuthProvider()
       await signInWithPopup($auth, provider)
@@ -29,7 +29,7 @@ export const useAuth = () => {
     if (!$auth) {
       throw new Error('Firebase Auth is not initialized. Please check your .env file.')
     }
-    
+
     try {
       await signOut($auth)
     } catch (error) {
