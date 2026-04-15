@@ -26,6 +26,36 @@
             {{ category.name }}
           </option>
         </select>
+        <select
+          v-model="selectedMonth"
+          class="input-field expense-month-filter"
+        >
+          <option value="">
+            All months
+          </option>
+          <option
+            v-for="month in monthOptions"
+            :key="month.value"
+            :value="month.value"
+          >
+            {{ month.label }}
+          </option>
+        </select>
+        <select
+          v-model="selectedYear"
+          class="input-field expense-year-filter"
+        >
+          <option value="">
+            All years
+          </option>
+          <option
+            v-for="year in availableYears"
+            :key="year"
+            :value="year.toString()"
+          >
+            {{ year }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -165,16 +195,77 @@ const categories = ref<Category[]>([])
 const loading = ref(true)
 const searchQuery = ref('')
 const selectedCategory = ref('')
+const selectedMonth = ref('')
+const selectedYear = ref('')
 const showDeleteModal = ref(false)
 const expenseToDelete = ref<Expense | null>(null)
 
-const filteredExpenses = computed(() => {
-  let filtered = expenses.value
+const monthOptions = [
+  { value: '0', label: 'January' },
+  { value: '1', label: 'February' },
+  { value: '2', label: 'March' },
+  { value: '3', label: 'April' },
+  { value: '4', label: 'May' },
+  { value: '5', label: 'June' },
+  { value: '6', label: 'July' },
+  { value: '7', label: 'August' },
+  { value: '8', label: 'September' },
+  { value: '9', label: 'October' },
+  { value: '10', label: 'November' },
+  { value: '11', label: 'December' }
+] as const
 
-  if (searchQuery.value) {
+const getExpenseDate = (date: Expense['createdAt']) => {
+  const firestoreDate = date as any
+
+  if (typeof firestoreDate?.toDate === 'function') {
+    return firestoreDate.toDate()
+  }
+
+  if (typeof firestoreDate?.seconds === 'number') {
+    return new Date(firestoreDate.seconds * 1000)
+  }
+
+  return new Date(date)
+}
+
+const availableYears = computed(() => {
+  const years = new Set<number>()
+
+  expenses.value.forEach((expense) => {
+    years.add(getExpenseDate(expense.createdAt).getFullYear())
+  })
+
+  return Array.from(years).sort((a, b) => b - a)
+})
+
+const resolvedFilterYear = computed(() => {
+  if (selectedYear.value) {
+    return Number(selectedYear.value)
+  }
+
+  if (!selectedMonth.value) {
+    return null
+  }
+
+  // When only a month is selected, use the most recent occurrence of that month.
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth()
+  const monthIndex = Number(selectedMonth.value)
+
+  return monthIndex <= currentMonth ? currentYear : currentYear - 1
+})
+
+const filteredExpenses = computed(() => {
+  let filtered = [...expenses.value]
+
+  const normalizedSearchQuery = searchQuery.value.trim().toLowerCase()
+
+  if (normalizedSearchQuery) {
     filtered = filtered.filter(expense =>
-      expense.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      expense.categoryName.toLowerCase().includes(searchQuery.value.toLowerCase())
+      expense.description.toLowerCase().includes(normalizedSearchQuery) ||
+      expense.categoryName.toLowerCase().includes(normalizedSearchQuery)
     )
   }
 
@@ -182,18 +273,34 @@ const filteredExpenses = computed(() => {
     filtered = filtered.filter(expense => expense.categoryId === selectedCategory.value)
   }
 
-  return filtered.sort((a, b) => {
-    // Handle Firestore timestamp objects and regular Date objects
-    const dateA = (a.createdAt as any).seconds ? new Date((a.createdAt as any).seconds * 1000) : new Date(a.createdAt)
-    const dateB = (b.createdAt as any).seconds ? new Date((b.createdAt as any).seconds * 1000) : new Date(b.createdAt)
+  if (selectedMonth.value || selectedYear.value) {
+    const filterYear = resolvedFilterYear.value
 
-    // Sort by newest first (descending order)
+    filtered = filtered.filter((expense) => {
+      const expenseDate = getExpenseDate(expense.createdAt)
+      const matchesYear = filterYear === null || expenseDate.getFullYear() === filterYear
+      const matchesMonth = !selectedMonth.value || expenseDate.getMonth() === Number(selectedMonth.value)
+
+      return matchesYear && matchesMonth
+    })
+  }
+
+  return filtered.sort((a, b) => {
+    const dateA = getExpenseDate(a.createdAt)
+    const dateB = getExpenseDate(b.createdAt)
+
     return dateB.getTime() - dateA.getTime()
   })
 })
 
-const formatDate = (date: any) => {
-  const d = new Date(date.seconds ? date.seconds * 1000 : date)
+watch(availableYears, (years) => {
+  if (selectedYear.value && !years.includes(Number(selectedYear.value))) {
+    selectedYear.value = ''
+  }
+})
+
+const formatDate = (date: Expense['createdAt']) => {
+  const d = getExpenseDate(date)
   return d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -253,16 +360,22 @@ watch(user, () => {
 </script>
 
 <style lang="postcss" scoped>
+.section-header {
+  @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
+}
+
 .expense-filters {
-  @apply flex items-center space-x-2;
+  @apply flex w-full flex-wrap items-center gap-2 md:w-auto;
 }
 
 .expense-search {
-  @apply text-sm w-48;
+  @apply text-sm w-full sm:w-48;
 }
 
-.expense-category-filter {
-  @apply text-sm w-32;
+.expense-category-filter,
+.expense-month-filter,
+.expense-year-filter {
+  @apply text-sm w-full sm:w-32;
 }
 
 .expense-list {
