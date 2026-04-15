@@ -16,7 +16,7 @@
           class="input-field expense-category-filter"
         >
           <option value="">
-            All
+            All Categories
           </option>
           <option
             v-for="category in categories"
