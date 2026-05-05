@@ -25,22 +25,30 @@
         />
         <span class="category-name">{{ category.name }}</span>
         <button
-          class="category-delete-btn"
+          class="edit-category-btn"
+          title="Edit category"
+          @click="openEditModal(category)"
+        >
+          <PencilIcon class="w-4 h-4" />
+        </button>
+        <button
+          class="delete-category-btn"
+          title="Delete category"
           @click="deleteCategory(category.id)"
         >
-          ×
+          <XMarkIcon class="w-4 h-4" />
         </button>
       </div>
     </div>
 
-    <!-- Add Category Modal -->
+    <!-- Add / Edit Category Modal -->
     <div
       v-if="showAddModal"
       class="modal-overlay"
     >
       <div class="modal-content">
         <h3 class="modal-header">
-          Add New Category
+          {{ categoryToEdit ? 'Edit Category' : 'Add New Category' }}
         </h3>
         <div class="category-form">
           <div class="form-group">
@@ -69,9 +77,9 @@
             <button
               class="btn-primary modal-button"
               :disabled="!newCategory.name || !newCategory.color"
-              @click="addCategory"
+              @click="categoryToEdit ? updateCategory() : addCategory()"
             >
-              Add Category
+              {{ categoryToEdit ? 'Save Changes' : 'Add Category' }}
             </button>
             <button
               class="btn-secondary modal-button"
@@ -89,12 +97,14 @@
 <script setup lang="ts">
 import type { Category } from '~/types'
 import { where } from 'firebase/firestore'
+import { XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
-const { addDocument, deleteDocument, subscribeToCollection } = useFirestore()
+const { addDocument, updateDocument, deleteDocument, getDocuments, subscribeToCollection } = useFirestore()
 
 const categories = ref<Category[]>([])
 const showAddModal = ref(false)
+const categoryToEdit = ref<Category | null>(null)
 const newCategory = ref({
   name: '',
   color: '#3B82F6'
@@ -123,6 +133,40 @@ const addCategory = async () => {
   }
 }
 
+const openEditModal = (category: Category) => {
+  categoryToEdit.value = category
+  newCategory.value = { name: category.name, color: category.color }
+  showAddModal.value = true
+}
+
+const updateCategory = async () => {
+  if (!user.value || !categoryToEdit.value || !newCategory.value.name || !newCategory.value.color) return
+
+  const { id } = categoryToEdit.value
+  const { name, color } = newCategory.value
+
+  try {
+    await updateDocument('categories', id, { name, color })
+
+    const expenses = await getDocuments('expenses', [
+      where('categoryId', '==', id),
+      where('userId', '==', user.value.uid)
+    ])
+
+    await Promise.all(
+      expenses.map(expense =>
+        updateDocument('expenses', expense.id, { categoryName: name, categoryColor: color })
+      )
+    )
+
+    showAddModal.value = false
+    resetForm()
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error updating category:', error)
+  }
+}
+
 const deleteCategory = async (categoryId: string) => {
   if (!confirm('Are you sure you want to delete this category?')) return
 
@@ -135,10 +179,8 @@ const deleteCategory = async (categoryId: string) => {
 }
 
 const resetForm = () => {
-  newCategory.value = {
-    name: '',
-    color: '#3B82F6'
-  }
+  newCategory.value = { name: '', color: '#3B82F6' }
+  categoryToEdit.value = null
 }
 
 // Subscribe to categories changes
@@ -180,8 +222,12 @@ watch(user, () => {
   @apply text-sm font-medium text-gray-700;
 }
 
-.category-delete-btn {
-  @apply ml-auto text-red-500 hover:text-red-700 text-xs;
+.edit-category-btn {
+  @apply ml-3 p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors duration-200;
+}
+
+.delete-category-btn {
+  @apply ml-3 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200;
 }
 
 .category-form {
