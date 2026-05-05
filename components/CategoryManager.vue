@@ -118,6 +118,7 @@ const addCategory = async () => {
     showAddModal.value = false
     resetForm()
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error adding category:', error)
   }
 }
@@ -128,6 +129,7 @@ const deleteCategory = async (categoryId: string) => {
   try {
     await deleteDocument('categories', categoryId)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error deleting category:', error)
   }
 }
@@ -157,7 +159,7 @@ watch(user, () => {
 }, { immediate: true })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .category-add-btn {
   @apply text-sm;
 }

@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import type { Expense } from '~/types'
 
 const props = defineProps<{ expenseToDelete: Expense | null }>()
@@ -62,7 +61,7 @@ const cancelDelete = () => {
 }
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .modal-content {
   @apply bg-white rounded-lg shadow-xl max-w-md w-full mx-4;
 }

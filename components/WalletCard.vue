@@ -121,6 +121,7 @@ const updateWallet = async () => {
     showEditModal.value = false
     newBalance.value = 0
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error updating wallet:', error)
   }
 }
@@ -182,6 +183,7 @@ const calculateStats = async () => {
     updateRemainingBudget()
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error calculating stats:', error)
   }
 }
@@ -231,7 +233,7 @@ watch(user, () => {
 }, { immediate: true })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .wallet-edit-btn {
   @apply text-blue-600 hover:text-blue-700 text-sm font-medium;
 }

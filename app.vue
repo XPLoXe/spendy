@@ -76,7 +76,7 @@ useHead({
 })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .app-container {
   @apply min-h-screen bg-gray-50;
 }

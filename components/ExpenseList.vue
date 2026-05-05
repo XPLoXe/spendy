@@ -106,6 +106,13 @@
             </div>
           </div>
           <button
+            class="edit-expense-btn"
+            title="Edit expense"
+            @click="confirmEditExpense(expense)"
+          >
+            <PencilIcon class="w-4 h-4" />
+          </button>
+          <button
             class="delete-expense-btn"
             title="Delete expense"
             @click="confirmDeleteExpense(expense)"
@@ -128,44 +135,19 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <!-- <div v-if="showDeleteModal" class="modal-overlay">
-      <div class="modal-content">
-        <h3 class="modal-header">Delete Expense</h3>
-        <div class="modal-body">
-          <p class="modal-text">
-            Are you sure you want to delete this expense?
-          </p>
-          <div v-if="expenseToDelete" class="expense-preview">
-            <div class="expense-preview-info">
-              <div class="expense-preview-description">{{ expenseToDelete.description }}</div>
-              <div class="expense-preview-category">{{ expenseToDelete.categoryName }}</div>
-            </div>
-            <div class="expense-preview-amount">-${{ expenseToDelete.amount.toFixed(2) }}</div>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button
-            @click="deleteExpense"
-            class="btn-danger modal-button"
-          >
-            Delete
-          </button>
-          <button
-            @click="cancelDelete"
-            class="btn-secondary modal-button"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div> -->
-
     <deleteExpenseModal
       v-if="showDeleteModal"
       :expense-to-delete="expenseToDelete"
       @delete-expense="deleteExpense"
       @cancel-delete="cancelDelete"
+    />
+
+    <editExpenseModal
+      v-if="showEditModal"
+      :expense-to-edit="expenseToEdit"
+      :categories="categories"
+      @update-expense="saveEditedExpense"
+      @cancel-edit="cancelEdit"
     />
   </div>
 </template>
@@ -174,10 +156,11 @@
 import type { Expense, Category } from '~/types'
 import { where } from 'firebase/firestore'
 import deleteExpenseModal from './modals/deleteExpenseModal.vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import editExpenseModal from './modals/editExpenseModal.vue'
+import { XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
-const { subscribeToCollection, deleteDocument } = useFirestore()
+const { subscribeToCollection, deleteDocument, updateDocument } = useFirestore()
 
 const expenses = ref<Expense[]>([])
 const categories = ref<Category[]>([])
@@ -188,6 +171,8 @@ const selectedMonth = ref('')
 const selectedYear = ref('')
 const showDeleteModal = ref(false)
 const expenseToDelete = ref<Expense | null>(null)
+const showEditModal = ref(false)
+const expenseToEdit = ref<Expense | null>(null)
 
 const monthOptions = [
   { value: '0', label: 'January' },
@@ -320,6 +305,29 @@ const cancelDelete = () => {
   expenseToDelete.value = null
 }
 
+const confirmEditExpense = (expense: Expense) => {
+  expenseToEdit.value = expense
+  showEditModal.value = true
+}
+
+const saveEditedExpense = async (payload: Partial<Expense>) => {
+  if (!expenseToEdit.value) return
+
+  try {
+    await updateDocument('expenses', expenseToEdit.value.id, payload)
+    showEditModal.value = false
+    expenseToEdit.value = null
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error updating expense:', error)
+  }
+}
+
+const cancelEdit = () => {
+  showEditModal.value = false
+  expenseToEdit.value = null
+}
+
 // Subscribe to expenses changes
 watch(user, () => {
   if (user.value) {
@@ -348,7 +356,7 @@ watch(user, () => {
 }, { immediate: true })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .section-header {
   @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
 }
@@ -425,6 +433,10 @@ watch(user, () => {
 
 .expense-actions {
   @apply flex flex-row justify-center items-center;
+}
+
+.edit-expense-btn {
+  @apply ml-3 p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors duration-200;
 }
 
 .delete-expense-btn {

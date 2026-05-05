@@ -58,7 +58,7 @@
 const { user, loading, signInWithGoogle, logout } = useAuth()
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .auth-loading {
   @apply flex justify-center items-center p-4;
 }

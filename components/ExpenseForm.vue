@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Expense, Category } from '~/types'
+import type { Category } from '~/types'
 import { where } from 'firebase/firestore'
 
 const { user } = useAuth()
@@ -99,6 +99,7 @@ const addExpense = async () => {
       categoryId: ''
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error adding expense:', error)
   }
 }
@@ -121,7 +122,7 @@ watch(user, () => {
 }, { immediate: true })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .expense-form-title {
   @apply mb-4;
 }
