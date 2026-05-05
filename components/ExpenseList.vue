@@ -278,8 +278,7 @@ const formatDate = (date: Expense['createdAt']) => {
   return d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: 'numeric'
   })
 }
 
@@ -296,6 +295,7 @@ const deleteExpense = async () => {
     showDeleteModal.value = false
     expenseToDelete.value = null
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error deleting expense:', error)
   }
 }
