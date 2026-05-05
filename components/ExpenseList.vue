@@ -110,19 +110,7 @@
             title="Delete expense"
             @click="confirmDeleteExpense(expense)"
           >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <XMarkIcon class="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -186,6 +174,7 @@
 import type { Expense, Category } from '~/types'
 import { where } from 'firebase/firestore'
 import deleteExpenseModal from './modals/deleteExpenseModal.vue'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
 const { subscribeToCollection, deleteDocument } = useFirestore()
