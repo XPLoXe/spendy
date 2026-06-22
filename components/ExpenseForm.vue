@@ -159,7 +159,7 @@ watch(user, () => {
 }
 
 .expense-form {
-  @apply space-y-4;
+  @apply grid grid-cols-2 gap-x-2 gap-y-4;
 }
 
 .form-group {
@@ -167,6 +167,6 @@ watch(user, () => {
 }
 
 .expense-submit-btn {
-  @apply w-full;
+  @apply w-full cursor-pointer;
 }
 </style>
