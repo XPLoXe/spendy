@@ -105,14 +105,17 @@ const updateWallet = async () => {
       where('userId', '==', user.value.uid)
     ])
 
+    const targetBalance = parseFloat(newBalance.value.toString())
+    const storedBalance = targetBalance + monthlySpent.value
+
     if (wallets.length > 0) {
       await updateDocument('wallets', wallets[0]!.id, {
-        balance: parseFloat(newBalance.value.toString())
+        balance: storedBalance
       })
     } else {
       await addDocument('wallets', {
         userId: user.value.uid,
-        balance: parseFloat(newBalance.value.toString())
+        balance: storedBalance
       })
     }
 
