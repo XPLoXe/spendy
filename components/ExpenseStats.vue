@@ -370,7 +370,7 @@ watch(user, () => {
 }
 
 .stats-filters {
-  @apply flex w-full flex-wrap items-center gap-2 md:w-auto;
+  @apply flex flex-row w-full items-center gap-2 md:w-auto;
 }
 
 .stats-month-filter,
