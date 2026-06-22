@@ -35,18 +35,11 @@
         v-else
         class="dashboard"
       >
-        <!-- Wallet Overview -->
-        <div class="grid-3">
-          <div class="wallet-section">
-            <WalletCard />
-          </div>
-          <div class="category-section">
-            <CategoryManager />
-          </div>
+        <!-- Overview: wallet + add-expense/categories tabs -->
+        <div class="overview-grid">
+          <WalletCard />
+          <ManageSection />
         </div>
-
-        <!-- Add Expense -->
-        <ExpenseForm />
 
         <!-- Expenses: list + stats tabs -->
         <ExpenseSection />
@@ -125,12 +118,8 @@ useHead({
   @apply space-y-8;
 }
 
-.wallet-section {
-  @apply lg:col-span-2;
-}
-
-.category-section {
-  @apply flex flex-col;
+.overview-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6 items-start;
 }
 
 .app-footer {
