@@ -48,8 +48,8 @@
         <!-- Add Expense -->
         <ExpenseForm />
 
-        <!-- Expenses List -->
-        <ExpenseList />
+        <!-- Expenses: list + stats tabs -->
+        <ExpenseSection />
       </div>
     </main>
 
