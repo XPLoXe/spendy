@@ -4,59 +4,19 @@
       <h2 class="section-title">
         Recent Expenses
       </h2>
-      <div class="expense-filters">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search expenses..."
-          class="input-field expense-search"
-        >
-        <select
-          v-model="selectedCategory"
-          class="input-field expense-category-filter"
-        >
-          <option value="">
-            All Categories
-          </option>
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
-        <select
-          v-model="selectedMonth"
-          class="input-field expense-month-filter"
-        >
-          <option value="">
-            All months
-          </option>
-          <option
-            v-for="month in monthOptions"
-            :key="month.value"
-            :value="month.value"
-          >
-            {{ month.label }}
-          </option>
-        </select>
-        <select
-          v-model="selectedYear"
-          class="input-field expense-year-filter"
-        >
-          <option value="">
-            All years
-          </option>
-          <option
-            v-for="year in availableYears"
-            :key="year"
-            :value="year.toString()"
-          >
-            {{ year }}
-          </option>
-        </select>
-      </div>
+      <UiFilterBar
+        v-model:search="searchQuery"
+        v-model:category="selectedCategory"
+        v-model:month="selectedMonth"
+        v-model:year="selectedYear"
+        :categories="categories"
+        :available-years="availableYears"
+        search-placeholder="Search expenses..."
+        has-search-bar
+        has-category-filter
+        has-month-filter
+        has-year-filter
+      />
     </div>
 
     <div
@@ -165,113 +125,19 @@ const { subscribeToCollection, deleteDocument, updateDocument } = useFirestore()
 const expenses = ref<Expense[]>([])
 const categories = ref<Category[]>([])
 const loading = ref(true)
-const searchQuery = ref('')
-const selectedCategory = ref('')
-const selectedMonth = ref('')
-const selectedYear = ref('')
 const showDeleteModal = ref(false)
 const expenseToDelete = ref<Expense | null>(null)
 const showEditModal = ref(false)
 const expenseToEdit = ref<Expense | null>(null)
 
-const monthOptions = [
-  { value: '0', label: 'January' },
-  { value: '1', label: 'February' },
-  { value: '2', label: 'March' },
-  { value: '3', label: 'April' },
-  { value: '4', label: 'May' },
-  { value: '5', label: 'June' },
-  { value: '6', label: 'July' },
-  { value: '7', label: 'August' },
-  { value: '8', label: 'September' },
-  { value: '9', label: 'October' },
-  { value: '10', label: 'November' },
-  { value: '11', label: 'December' }
-] as const
-
-const getExpenseDate = (date: Expense['createdAt']) => {
-  const firestoreDate = date as any
-
-  if (typeof firestoreDate?.toDate === 'function') {
-    return firestoreDate.toDate()
-  }
-
-  if (typeof firestoreDate?.seconds === 'number') {
-    return new Date(firestoreDate.seconds * 1000)
-  }
-
-  return new Date(date)
-}
-
-const availableYears = computed(() => {
-  const years = new Set<number>()
-
-  expenses.value.forEach((expense) => {
-    years.add(getExpenseDate(expense.createdAt).getFullYear())
-  })
-
-  return Array.from(years).sort((a, b) => b - a)
-})
-
-const resolvedFilterYear = computed(() => {
-  if (selectedYear.value) {
-    return Number(selectedYear.value)
-  }
-
-  if (!selectedMonth.value) {
-    return null
-  }
-
-  // When only a month is selected, use the most recent occurrence of that month.
-  const now = new Date()
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth()
-  const monthIndex = Number(selectedMonth.value)
-
-  return monthIndex <= currentMonth ? currentYear : currentYear - 1
-})
-
-const filteredExpenses = computed(() => {
-  let filtered = [...expenses.value]
-
-  const normalizedSearchQuery = searchQuery.value.trim().toLowerCase()
-
-  if (normalizedSearchQuery) {
-    filtered = filtered.filter(expense =>
-      expense.description.toLowerCase().includes(normalizedSearchQuery) ||
-      expense.categoryName.toLowerCase().includes(normalizedSearchQuery)
-    )
-  }
-
-  if (selectedCategory.value) {
-    filtered = filtered.filter(expense => expense.categoryId === selectedCategory.value)
-  }
-
-  if (selectedMonth.value || selectedYear.value) {
-    const filterYear = resolvedFilterYear.value
-
-    filtered = filtered.filter((expense) => {
-      const expenseDate = getExpenseDate(expense.createdAt)
-      const matchesYear = filterYear === null || expenseDate.getFullYear() === filterYear
-      const matchesMonth = !selectedMonth.value || expenseDate.getMonth() === Number(selectedMonth.value)
-
-      return matchesYear && matchesMonth
-    })
-  }
-
-  return filtered.sort((a, b) => {
-    const dateA = getExpenseDate(a.createdAt)
-    const dateB = getExpenseDate(b.createdAt)
-
-    return dateB.getTime() - dateA.getTime()
-  })
-})
-
-watch(availableYears, (years) => {
-  if (selectedYear.value && !years.includes(Number(selectedYear.value))) {
-    selectedYear.value = ''
-  }
-})
+const {
+  searchQuery,
+  selectedCategory,
+  selectedMonth,
+  selectedYear,
+  availableYears,
+  filteredExpenses
+} = useExpenseFilters(expenses)
 
 const formatDate = (date: Expense['createdAt']) => {
   const d = getExpenseDate(date)
@@ -359,20 +225,6 @@ watch(user, () => {
 <style scoped>
 .section-header {
   @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
-}
-
-.expense-filters {
-  @apply grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap md:items-center;
-}
-
-.expense-search {
-  @apply text-sm w-full md:w-48;
-}
-
-.expense-category-filter,
-.expense-month-filter,
-.expense-year-filter {
-  @apply text-sm w-full md:w-32;
 }
 
 .expense-list {

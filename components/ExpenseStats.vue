@@ -4,38 +4,13 @@
       <h2 class="section-title">
         Spending by Category
       </h2>
-      <div class="stats-filters">
-        <select
-          v-model="selectedMonth"
-          class="input-field stats-month-filter"
-        >
-          <option value="">
-            All months
-          </option>
-          <option
-            v-for="month in monthOptions"
-            :key="month.value"
-            :value="month.value"
-          >
-            {{ month.label }}
-          </option>
-        </select>
-        <select
-          v-model="selectedYear"
-          class="input-field stats-year-filter"
-        >
-          <option value="">
-            All years
-          </option>
-          <option
-            v-for="year in availableYears"
-            :key="year"
-            :value="year.toString()"
-          >
-            {{ year }}
-          </option>
-        </select>
-      </div>
+      <UiFilterBar
+        v-model:month="selectedMonth"
+        v-model:year="selectedYear"
+        :available-years="availableYears"
+        has-month-filter
+        has-year-filter
+      />
     </div>
 
     <div
@@ -150,8 +125,8 @@ const { subscribeToCollection } = useFirestore()
 
 const expenses = ref<Expense[]>([])
 const loading = ref(true)
-const selectedMonth = ref('')
-const selectedYear = ref('')
+
+const { selectedMonth, selectedYear, availableYears, filteredExpenses } = useExpenseFilters(expenses, { sort: false })
 
 const hoveredId = ref<string | null>(null)
 const pinnedId = ref<string | null>(null)
@@ -163,80 +138,6 @@ const activeCategoryId = computed(() => hoveredId.value ?? pinnedId.value)
 const CHART = { size: 200, cx: 100, cy: 100, outerR: 80, innerR: 52 }
 // Inside-slice % labels are hidden below this share to avoid clutter on thin slices.
 const LABEL_THRESHOLD = 5
-
-const monthOptions = [
-  { value: '0', label: 'January' },
-  { value: '1', label: 'February' },
-  { value: '2', label: 'March' },
-  { value: '3', label: 'April' },
-  { value: '4', label: 'May' },
-  { value: '5', label: 'June' },
-  { value: '6', label: 'July' },
-  { value: '7', label: 'August' },
-  { value: '8', label: 'September' },
-  { value: '9', label: 'October' },
-  { value: '10', label: 'November' },
-  { value: '11', label: 'December' }
-] as const
-
-const getExpenseDate = (date: Expense['createdAt']) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const firestoreDate = date as any
-
-  if (typeof firestoreDate?.toDate === 'function') {
-    return firestoreDate.toDate()
-  }
-
-  if (typeof firestoreDate?.seconds === 'number') {
-    return new Date(firestoreDate.seconds * 1000)
-  }
-
-  return new Date(date)
-}
-
-const availableYears = computed(() => {
-  const years = new Set<number>()
-
-  expenses.value.forEach((expense) => {
-    years.add(getExpenseDate(expense.createdAt).getFullYear())
-  })
-
-  return Array.from(years).sort((a, b) => b - a)
-})
-
-const resolvedFilterYear = computed(() => {
-  if (selectedYear.value) {
-    return Number(selectedYear.value)
-  }
-
-  if (!selectedMonth.value) {
-    return null
-  }
-
-  // When only a month is selected, use the most recent occurrence of that month.
-  const now = new Date()
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth()
-  const monthIndex = Number(selectedMonth.value)
-
-  return monthIndex <= currentMonth ? currentYear : currentYear - 1
-})
-
-const filteredExpenses = computed(() => {
-  if (!selectedMonth.value && !selectedYear.value) {
-    return expenses.value
-  }
-
-  const filterYear = resolvedFilterYear.value
-
-  return expenses.value.filter((expense) => {
-    const expenseDate = getExpenseDate(expense.createdAt)
-    const matchesYear = filterYear === null || expenseDate.getFullYear() === filterYear
-    const matchesMonth = !selectedMonth.value || expenseDate.getMonth() === Number(selectedMonth.value)
-
-    return matchesYear && matchesMonth
-  })
-})
 
 const grandTotal = computed(() =>
   filteredExpenses.value.reduce((sum, expense) => sum + expense.amount, 0)
@@ -267,12 +168,6 @@ const categoryTotals = computed(() => {
       percentage: total > 0 ? (cat.total / total) * 100 : 0
     }))
     .sort((a, b) => b.total - a.total)
-})
-
-watch(availableYears, (years) => {
-  if (selectedYear.value && !years.includes(Number(selectedYear.value))) {
-    selectedYear.value = ''
-  }
 })
 
 const togglePin = (categoryId: string) => {
@@ -367,15 +262,6 @@ watch(user, () => {
 <style scoped>
 .stats-header {
   @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
-}
-
-.stats-filters {
-  @apply flex flex-row w-full items-center gap-2 md:w-auto;
-}
-
-.stats-month-filter,
-.stats-year-filter {
-  @apply text-sm w-full sm:w-32;
 }
 
 .stats-content {
