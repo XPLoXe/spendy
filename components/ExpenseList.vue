@@ -362,17 +362,17 @@ watch(user, () => {
 }
 
 .expense-filters {
-  @apply flex w-full flex-wrap items-center gap-2 md:w-auto;
+  @apply grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap md:items-center;
 }
 
 .expense-search {
-  @apply text-sm w-full sm:w-48;
+  @apply text-sm w-full md:w-48;
 }
 
 .expense-category-filter,
 .expense-month-filter,
 .expense-year-filter {
-  @apply text-sm w-full sm:w-32;
+  @apply text-sm w-full md:w-32;
 }
 
 .expense-list {
