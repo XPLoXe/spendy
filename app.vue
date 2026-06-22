@@ -80,10 +80,11 @@ useHead({
 
 .header-content {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply flex flex-row justify-between items-center py-4;
 }
 
 .header-brand {
-  @apply flex items-center;
+  @apply flex flex-col items-start;
 }
 
 .app-title {
@@ -91,7 +92,7 @@ useHead({
 }
 
 .app-subtitle {
-  @apply ml-2 text-sm text-gray-500;
+  @apply text-sm text-gray-500;
 }
 
 .app-main {

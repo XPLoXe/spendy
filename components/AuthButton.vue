@@ -10,11 +10,6 @@
     v-else-if="user"
     class="auth-user"
   >
-    <img
-      :src="user.photoURL || '/default-avatar.png'"
-      :alt="user.displayName || 'User'"
-      class="user-avatar"
-    >
     <span class="user-name">{{ user.displayName || user.email }}</span>
     <button
       class="btn-secondary auth-logout"
@@ -22,6 +17,12 @@
     >
       Logout
     </button>
+
+    <img
+      :src="user.photoURL || '/default-avatar.png'"
+      :alt="user.displayName || 'User'"
+      class="user-avatar"
+    >
   </div>
 
   <button
