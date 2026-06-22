@@ -19,7 +19,7 @@
           <label class="form-label">Date</label>
           <input
             v-model="form.date"
-            type="datetime-local"
+            type="date"
             class="input-field"
           >
         </div>
@@ -68,17 +68,19 @@ const props = defineProps<{
 const emit = defineEmits(['updateExpense', 'cancelEdit'])
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toDatetimeLocal = (date: any): string => {
-  let d: Date
-  if (typeof date?.toDate === 'function') {
-    d = date.toDate()
-  } else if (typeof date?.seconds === 'number') {
-    d = new Date(date.seconds * 1000)
-  } else {
-    d = new Date(date)
-  }
+const toDate = (date: any): Date => {
+  if (typeof date?.toDate === 'function') return date.toDate()
+  if (typeof date?.seconds === 'number') return new Date(date.seconds * 1000)
+  return new Date(date)
+}
+
+// Date-only string (YYYY-MM-DD) for the date input. The time-of-day is kept
+// internal and never shown to the user.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toDateInput = (date: any): string => {
+  const d = toDate(date)
   const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 const form = reactive({
@@ -92,7 +94,7 @@ watch(
   (expense) => {
     if (expense) {
       form.amount = expense.amount
-      form.date = toDatetimeLocal(expense.createdAt)
+      form.date = toDateInput(expense.createdAt)
       form.categoryId = expense.categoryId
     }
   },
@@ -101,9 +103,20 @@ watch(
 
 const save = () => {
   const selectedCategory = props.categories.find(c => c.id === form.categoryId)
+
+  // Combine the picked date with the original expense's time-of-day so the
+  // internal timestamp (and same-day ordering) is preserved when only the
+  // date is edited.
+  const [year, month, day] = form.date.split('-').map(Number)
+  const original = props.expenseToEdit ? toDate(props.expenseToEdit.createdAt) : new Date()
+  const createdAt = new Date(
+    year!, month! - 1, day!,
+    original.getHours(), original.getMinutes(), original.getSeconds(), original.getMilliseconds()
+  )
+
   emit('updateExpense', {
     amount: form.amount,
-    createdAt: new Date(form.date),
+    createdAt,
     categoryId: form.categoryId,
     categoryName: selectedCategory?.name ?? props.expenseToEdit?.categoryName ?? '',
     categoryColor: selectedCategory?.color ?? props.expenseToEdit?.categoryColor ?? ''

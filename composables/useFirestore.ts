@@ -23,9 +23,9 @@ export const useFirestore = () => {
 
     try {
       const docRef = await addDoc(collection($db, collectionName), {
-        ...data,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        ...data
       })
       return docRef.id
     } catch (error) {

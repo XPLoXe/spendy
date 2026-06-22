@@ -172,7 +172,7 @@ const calculateStats = async () => {
     // Get monthly expenses
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
 
     const expenses = await getDocuments('expenses', [
       where('userId', '==', user.value.uid),
@@ -209,7 +209,7 @@ watch(user, () => {
     // Subscribe to expenses changes for current month
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
 
     const unsubscribeExpenses = subscribeToCollection(
       'expenses',

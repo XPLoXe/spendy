@@ -52,10 +52,21 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input
+          v-model="expense.date"
+          type="date"
+          class="input-field"
+          :max="today"
+          required
+        >
+      </div>
+
       <button
         type="submit"
         class="btn-primary expense-submit-btn"
-        :disabled="!expense.amount || !expense.description || !expense.categoryId"
+        :disabled="!expense.amount || !expense.description || !expense.categoryId || !expense.date"
       >
         Add Expense
       </button>
@@ -71,17 +82,35 @@ const { user } = useAuth()
 const { addDocument, subscribeToCollection } = useFirestore()
 
 const categories = ref<Category[]>([])
+
+// Local YYYY-MM-DD string for today (used as the date input default and max)
+const toDateInputValue = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const today = toDateInputValue(new Date())
+
 const expense = ref({
   amount: '',
   description: '',
-  categoryId: ''
+  categoryId: '',
+  date: today
 })
 
 const addExpense = async () => {
-  if (!user.value || !expense.value.amount || !expense.value.description || !expense.value.categoryId) return
+  if (!user.value || !expense.value.amount || !expense.value.description || !expense.value.categoryId || !expense.value.date) return
 
   try {
     const selectedCategory = categories.value.find(cat => cat.id === expense.value.categoryId)
+
+    // Build the createdAt from the picked date, keeping the current time-of-day
+    // so today's expenses behave exactly as before and same-day ordering works.
+    const [year, month, day] = expense.value.date.split('-').map(Number)
+    const now = new Date()
+    const createdAt = new Date(year!, month! - 1, day!, now.getHours(), now.getMinutes(), now.getSeconds())
 
     await addDocument('expenses', {
       amount: parseFloat(expense.value.amount),
@@ -89,14 +118,16 @@ const addExpense = async () => {
       categoryId: expense.value.categoryId,
       categoryName: selectedCategory?.name || '',
       categoryColor: selectedCategory?.color || '#3B82F6',
-      userId: user.value.uid
+      userId: user.value.uid,
+      createdAt
     })
 
     // Reset form
     expense.value = {
       amount: '',
       description: '',
-      categoryId: ''
+      categoryId: '',
+      date: toDateInputValue(new Date())
     }
   } catch (error) {
     // eslint-disable-next-line no-console
