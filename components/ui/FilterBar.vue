@@ -37,7 +37,7 @@
         Current month
       </option>
       <option
-        v-for="monthOption in monthOptions"
+        v-for="monthOption in MONTH_OPTIONS"
         :key="monthOption.value"
         :value="monthOption.value"
       >
@@ -69,6 +69,7 @@
 
 <script setup lang="ts">
 import type { Category } from '~/types'
+import { MONTH_OPTIONS } from '~/constants'
 
 const props = withDefaults(defineProps<{
   hasSearchBar?: boolean
@@ -124,20 +125,6 @@ const yearModel = computed({
   set: value => emit('update:year', value)
 })
 
-const monthOptions = [
-  { value: '0', label: 'January' },
-  { value: '1', label: 'February' },
-  { value: '2', label: 'March' },
-  { value: '3', label: 'April' },
-  { value: '4', label: 'May' },
-  { value: '5', label: 'June' },
-  { value: '6', label: 'July' },
-  { value: '7', label: 'August' },
-  { value: '8', label: 'September' },
-  { value: '9', label: 'October' },
-  { value: '10', label: 'November' },
-  { value: '11', label: 'December' }
-] as const
 </script>
 
 <style scoped>

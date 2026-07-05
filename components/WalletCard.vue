@@ -5,10 +5,10 @@
         Wallet
       </h2>
       <button
-        class="wallet-edit-btn"
+        class="btn-terciary-edit"
         @click="showEditModal = true"
       >
-        Edit
+        <PencilIcon class="w-4 h-4" />
       </button>
     </div>
 
@@ -85,6 +85,7 @@
 
 <script setup lang="ts">
 import { where } from 'firebase/firestore'
+import { PencilIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
 const { addDocument, updateDocument, getDocuments, subscribeToCollection } = useFirestore()
@@ -237,12 +238,8 @@ watch(user, () => {
 </script>
 
 <style scoped>
-.wallet-edit-btn {
-  @apply text-blue-600 hover:text-blue-700 text-sm font-medium;
-}
-
 .wallet-balance {
-  @apply text-3xl font-bold text-gray-900 mb-2;
+  @apply text-3xl font-bold mb-2;
 }
 
 .wallet-daily-budget {

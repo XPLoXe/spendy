@@ -130,7 +130,7 @@ const save = () => {
 }
 
 .modal-header {
-  @apply text-lg font-semibold text-gray-900 px-6 py-4 border-b border-gray-200;
+  @apply text-lg font-semibold px-6 py-4 border-b border-gray-200;
 }
 
 .modal-body {

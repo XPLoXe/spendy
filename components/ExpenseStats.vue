@@ -134,6 +134,7 @@
 import type { Expense } from '~/types'
 import { where } from 'firebase/firestore'
 import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline'
+import { MONTH_NAMES } from '~/constants'
 
 const { user } = useAuth()
 const { subscribeToCollection } = useFirestore()
@@ -255,11 +256,6 @@ const centerSecondary = computed(() =>
   activeCategory.value ? activeCategory.value.name : 'Total spent'
 )
 
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
-
 // Human-readable label for the active month/year filter (for the sheet title/filename).
 const periodLabel = computed(() => {
   const monthPart = selectedMonth.value === ''
@@ -338,25 +334,24 @@ watch(user, () => {
 }
 
 .slice-label {
-  fill: #fff;
+  fill: theme('colors.white');
   font-size: 9px;
   font-weight: 700;
   paint-order: stroke;
-  stroke: rgba(17, 24, 39, 0.35);
+  stroke-opacity: 0.35;
   stroke-width: 0.6px;
   stroke-linejoin: round;
   pointer-events: none;
 }
 
 .center-primary {
-  fill: #111827;
   font-size: 15px;
   font-weight: 700;
   pointer-events: none;
 }
 
 .center-secondary {
-  fill: #6b7280;
+  fill: theme('colors.gray.500');
   font-size: 8.5px;
   font-weight: 500;
   pointer-events: none;
@@ -379,7 +374,7 @@ watch(user, () => {
 }
 
 .legend-name {
-  @apply font-medium text-gray-900;
+  @apply font-medium;
 }
 
 .legend-value {
@@ -399,7 +394,7 @@ watch(user, () => {
 }
 
 .stats-summary-total {
-  @apply font-semibold text-gray-900;
+  @apply font-semibold;
 }
 
 .stats-export {

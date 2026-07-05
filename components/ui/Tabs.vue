@@ -137,12 +137,13 @@ onUnmounted(() => {
 }
 
 .tab-button {
-  @apply relative px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-200 hover:text-gray-900;
+  @apply relative px-4 py-2 text-sm font-medium  transition-colors duration-200;
+  @apply text-gray-600 hover:text-black;
   z-index: 1;
 }
 
 .tab-button-active {
-  @apply text-gray-900;
+  @apply text-black;
 }
 
 .tab-panels {

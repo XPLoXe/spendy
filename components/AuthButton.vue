@@ -72,10 +72,6 @@ const { user, loading, signInWithGoogle, logout } = useAuth()
   @apply w-8 h-8 rounded-full;
 }
 
-.user-name {
-  @apply text-gray-700;
-}
-
 .auth-logout {
   @apply text-sm;
 }

@@ -66,14 +66,14 @@
             </div>
           </div>
           <button
-            class="edit-expense-btn"
+            class="btn-terciary-edit"
             title="Edit expense"
             @click="confirmEditExpense(expense)"
           >
             <PencilIcon class="w-4 h-4" />
           </button>
           <button
-            class="delete-expense-btn"
+            class="btn-terciary-delete"
             title="Delete expense"
             @click="confirmDeleteExpense(expense)"
           >
@@ -248,7 +248,7 @@ watch(user, () => {
 }
 
 .expense-description {
-  @apply font-medium text-gray-900;
+  @apply font-medium;
 }
 
 .expense-category {
@@ -260,7 +260,7 @@ watch(user, () => {
 }
 
 .expense-value {
-  @apply font-semibold text-gray-900;
+  @apply font-semibold;
 }
 
 .expense-date {
@@ -276,22 +276,14 @@ watch(user, () => {
 }
 
 .expense-count {
-  @apply text-gray-600;
+  @apply text-gray-500;
 }
 
 .expense-total {
-  @apply font-semibold text-gray-900;
+  @apply font-semibold;
 }
 
 .expense-actions {
   @apply flex flex-row justify-center items-center;
-}
-
-.edit-expense-btn {
-  @apply ml-3 p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors duration-200;
-}
-
-.delete-expense-btn {
-  @apply ml-3 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200;
 }
 </style>

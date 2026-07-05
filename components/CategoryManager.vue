@@ -25,14 +25,14 @@
         />
         <span class="category-name">{{ category.name }}</span>
         <button
-          class="edit-category-btn"
+          class="btn-terciary-edit"
           title="Edit category"
           @click="openEditModal(category)"
         >
           <PencilIcon class="w-4 h-4" />
         </button>
         <button
-          class="delete-category-btn"
+          class="btn-terciary-delete"
           title="Delete category"
           @click="deleteCategory(category.id)"
         >
@@ -98,6 +98,7 @@
 import type { Category } from '~/types'
 import { where } from 'firebase/firestore'
 import { XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
+import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from '~/constants'
 
 const { user } = useAuth()
 const { addDocument, updateDocument, deleteDocument, getDocuments, subscribeToCollection } = useFirestore()
@@ -107,13 +108,10 @@ const showAddModal = ref(false)
 const categoryToEdit = ref<Category | null>(null)
 const newCategory = ref({
   name: '',
-  color: '#3B82F6'
+  color: DEFAULT_CATEGORY_COLOR as string
 })
 
-const availableColors = [
-  '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
-  '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
-]
+const availableColors = CATEGORY_COLORS
 
 const addCategory = async () => {
   if (!user.value || !newCategory.value.name || !newCategory.value.color) return
@@ -179,7 +177,7 @@ const deleteCategory = async (categoryId: string) => {
 }
 
 const resetForm = () => {
-  newCategory.value = { name: '', color: '#3B82F6' }
+  newCategory.value = { name: '', color: DEFAULT_CATEGORY_COLOR }
   categoryToEdit.value = null
 }
 
@@ -219,15 +217,7 @@ watch(user, () => {
 }
 
 .category-name {
-  @apply text-sm font-medium text-gray-700;
-}
-
-.edit-category-btn {
-  @apply ml-3 p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-full transition-colors duration-200;
-}
-
-.delete-category-btn {
-  @apply ml-3 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200;
+  @apply text-sm font-medium;
 }
 
 .category-form {

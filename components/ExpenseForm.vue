@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import type { Category } from '~/types'
 import { where } from 'firebase/firestore'
+import { DEFAULT_CATEGORY_COLOR } from '~/constants'
 
 const { user } = useAuth()
 const { addDocument, subscribeToCollection } = useFirestore()
@@ -117,7 +118,7 @@ const addExpense = async () => {
       description: expense.value.description,
       categoryId: expense.value.categoryId,
       categoryName: selectedCategory?.name || '',
-      categoryColor: selectedCategory?.color || '#3B82F6',
+      categoryColor: selectedCategory?.color || DEFAULT_CATEGORY_COLOR,
       userId: user.value.uid,
       createdAt
     })

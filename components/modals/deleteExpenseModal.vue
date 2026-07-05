@@ -67,7 +67,7 @@ const cancelDelete = () => {
 }
 
 .modal-header {
-  @apply text-lg font-semibold text-gray-900 px-6 py-4 border-b border-gray-200;
+  @apply text-lg font-semibold px-6 py-4 border-b border-gray-200;
 }
 
 .modal-body {
@@ -87,7 +87,7 @@ const cancelDelete = () => {
 }
 
 .expense-preview-description {
-  @apply font-medium text-gray-900;
+  @apply font-medium;
 }
 
 .expense-preview-category {
@@ -95,7 +95,7 @@ const cancelDelete = () => {
 }
 
 .expense-preview-amount {
-  @apply font-semibold text-gray-900;
+  @apply font-semibold;
 }
 
 .modal-actions {

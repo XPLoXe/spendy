@@ -88,7 +88,7 @@ useHead({
 }
 
 .app-title {
-  @apply text-2xl font-bold text-gray-900;
+  @apply text-2xl font-bold;
 }
 
 .app-subtitle {
@@ -108,7 +108,7 @@ useHead({
 }
 
 .welcome-title {
-  @apply text-3xl font-bold text-gray-900 mb-4;
+  @apply text-3xl font-bold mb-4;
 }
 
 .welcome-description {
