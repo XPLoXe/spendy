@@ -113,15 +113,31 @@
         <span class="stats-summary-total">-${{ grandTotal.toFixed(2) }}</span>
       </div>
     </div>
+
+    <div
+      v-if="categoryTotals.length > 0"
+      class="stats-export"
+    >
+      <button
+        class="btn-secondary export-btn"
+        :disabled="exporting"
+        @click="handleExport"
+      >
+        <ArrowDownTrayIcon class="w-4 h-4" />
+        {{ exporting ? 'Exporting…' : 'Export to Excel' }}
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Expense } from '~/types'
 import { where } from 'firebase/firestore'
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
 const { subscribeToCollection } = useFirestore()
+const { exporting, exportToExcel } = useExpenseExport()
 
 const expenses = ref<Expense[]>([])
 const loading = ref(true)
@@ -239,6 +255,36 @@ const centerSecondary = computed(() =>
   activeCategory.value ? activeCategory.value.name : 'Total spent'
 )
 
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+// Human-readable label for the active month/year filter (for the sheet title/filename).
+const periodLabel = computed(() => {
+  const monthPart = selectedMonth.value === ''
+    ? 'All months'
+    : selectedMonth.value === 'current'
+      ? MONTH_NAMES[new Date().getMonth()]
+      : MONTH_NAMES[Number(selectedMonth.value)]
+
+  const yearPart = selectedYear.value === ''
+    ? 'All years'
+    : selectedYear.value === 'current'
+      ? String(new Date().getFullYear())
+      : selectedYear.value
+
+  return `${monthPart} ${yearPart}`
+})
+
+const handleExport = () =>
+  exportToExcel({
+    categoryTotals: categoryTotals.value,
+    expenses: filteredExpenses.value,
+    grandTotal: grandTotal.value,
+    periodLabel: periodLabel.value
+  })
+
 // Subscribe to expenses changes (expense docs carry categoryName/categoryColor,
 // so the categories collection isn't needed here).
 watch(user, () => {
@@ -354,5 +400,13 @@ watch(user, () => {
 
 .stats-summary-total {
   @apply font-semibold text-gray-900;
+}
+
+.stats-export {
+  @apply mt-4 flex justify-end;
+}
+
+.export-btn {
+  @apply inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed;
 }
 </style>
