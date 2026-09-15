@@ -1,0 +1,2 @@
+- [App color palette](app-color-palette.md) — use CATEGORY_PALETTE and the category-* utilities, never raw Tailwind colors.
+- [No commit without permission](no-commit-without-permission.md) — never run git commit/push unless explicitly told to in that message.
