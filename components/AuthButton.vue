@@ -57,7 +57,7 @@
     </button>
 
     <p
-      v-if="error"
+      v-if="error && showError"
       class="auth-error"
       role="alert"
     >
@@ -67,6 +67,15 @@
 </template>
 
 <script setup lang="ts">
+// The error now lives in shared auth state, so every AuthButton on the page
+// would otherwise print the same message. The header instance opts out.
+defineProps({
+  showError: {
+    type: Boolean,
+    default: true
+  }
+})
+
 const { user, loading, signingIn, error, signInWithGoogle, logout } = useAuth()
 </script>
 

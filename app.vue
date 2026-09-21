@@ -9,14 +9,26 @@
           </h1>
           <span class="app-subtitle">Track your daily expenses</span>
         </div>
-        <AuthButton />
+        <AuthButton :show-error="false" />
       </div>
     </header>
 
     <!-- Main Content -->
     <main class="app-main">
+      <!-- Auth is still settling. Coming back from Google this covers the gap
+           until getRedirectResult answers; painting the signed-out screen here
+           is what made a successful redirect look like a failed sign-in. -->
       <div
-        v-if="!user"
+        v-if="loading"
+        class="welcome-section"
+      >
+        <div class="welcome-content loading-container">
+          <div class="loading-spinner" />
+        </div>
+      </div>
+
+      <div
+        v-else-if="!user"
         class="welcome-section"
       >
         <div class="welcome-content">
@@ -58,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-const { user } = useAuth()
+const { user, loading } = useAuth()
 
 // Set page title
 useHead({
@@ -69,7 +81,7 @@ useHead({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .app-container {
   @apply min-h-screen bg-gray-50;
 }
