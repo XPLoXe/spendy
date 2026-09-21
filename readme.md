@@ -1,7 +1,8 @@
 # Spendy - Daily Expense Tracker
 
 A simple and minimalistic Nuxt 4 application for tracking daily expenses like a digital wallet.
-https://spendy-check.vercel.app/
+
+🚀 **Live demo:** https://spendy-check.vercel.app/
 
 ## Features
 
