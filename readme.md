@@ -2,7 +2,7 @@
 
 A simple and minimalistic Nuxt 4 application for tracking daily expenses like a digital wallet.
 
-🚀 **Live demo:** https://spendy-check.vercel.app/
+🚀 **Live demo:** https://spendy.alebocchicchio.com/
 
 ## Features
 
