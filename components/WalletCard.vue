@@ -1,16 +1,16 @@
 <template>
-  <div class="card">
-    <div class="section-header">
-      <h2 class="section-title">
-        Wallet
-      </h2>
-      <button
-        class="btn-terciary-edit"
-        @click="showEditModal = true"
-      >
-        <PencilIcon class="w-4 h-4" />
-      </button>
-    </div>
+  <UCard>
+    <template #header>
+      <UiCardHeader title="Wallet">
+        <UButton
+          icon="i-lucide-pencil"
+          color="neutral"
+          variant="ghost"
+          aria-label="Update wallet balance"
+          @click="showEditModal = true"
+        />
+      </UiCardHeader>
+    </template>
 
     <div class="wallet-balance">
       ${{ walletBalance.toFixed(2) }}
@@ -25,7 +25,7 @@
         <div class="stat-label">
           This month
         </div>
-        <div class="stat-value text-danger">
+        <div class="stat-value text-error">
           -${{ monthlySpent.toFixed(2) }}
         </div>
       </div>
@@ -35,7 +35,7 @@
         </div>
         <div
           class="stat-value"
-          :class="remainingBudget >= 0 ? 'text-success' : 'text-danger'"
+          :class="remainingBudget >= 0 ? 'text-success' : 'text-error'"
         >
           ${{ remainingBudget.toFixed(2) }}
         </div>
@@ -43,49 +43,47 @@
     </div>
 
     <!-- Edit Wallet Modal -->
-    <div
-      v-if="showEditModal"
-      class="modal-overlay"
+    <UModal
+      v-model:open="showEditModal"
+      title="Update Wallet Balance"
     >
-      <div class="modal-content">
-        <h3 class="modal-header">
-          Update Wallet Balance
-        </h3>
-        <div class="wallet-form">
-          <div class="form-group">
-            <label class="form-label">New Total Balance</label>
-            <input
-              v-model="newBalance"
-              type="number"
-              step="0.01"
-              class="input-field"
-              placeholder="Enter total wallet balance"
-            >
-          </div>
-          <div class="modal-actions">
-            <button
-              class="btn-primary modal-button"
-              :disabled="!newBalance || newBalance < 0"
-              @click="updateWallet"
-            >
-              Update
-            </button>
-            <button
-              class="btn-secondary modal-button"
-              @click="showEditModal = false"
-            >
-              Cancel
-            </button>
-          </div>
+      <template #body>
+        <UFormField label="New Total Balance">
+          <UInput
+            v-model="newBalance"
+            class="w-full"
+            type="number"
+            step="0.01"
+            placeholder="Enter total wallet balance"
+          />
+        </UFormField>
+      </template>
+
+      <template #footer>
+        <div class="modal-actions">
+          <UButton
+            class="modal-button"
+            :disabled="!newBalance || newBalance < 0"
+            @click="updateWallet"
+          >
+            Update
+          </UButton>
+          <UButton
+            class="modal-button"
+            color="neutral"
+            variant="outline"
+            @click="showEditModal = false"
+          >
+            Cancel
+          </UButton>
         </div>
-      </div>
-    </div>
-  </div>
+      </template>
+    </UModal>
+  </UCard>
 </template>
 
 <script setup lang="ts">
 import { where } from 'firebase/firestore'
-import { PencilIcon } from '@heroicons/vue/24/outline'
 
 const { user } = useAuth()
 const { addDocument, updateDocument, getDocuments, subscribeToCollection } = useFirestore()
@@ -238,12 +236,14 @@ watch(user, () => {
 </script>
 
 <style scoped>
+@reference "~/assets/css/main.css";
+
 .wallet-balance {
-  @apply text-3xl font-bold mb-2;
+  @apply text-3xl font-bold mb-2 text-highlighted;
 }
 
 .wallet-daily-budget {
-  @apply text-sm text-gray-600 mb-4;
+  @apply text-sm text-toned mb-4;
 }
 
 .wallet-stats {
@@ -255,18 +255,18 @@ watch(user, () => {
 }
 
 .stat-label {
-  @apply text-gray-500;
+  @apply text-muted;
 }
 
 .stat-value {
   @apply font-semibold;
 }
 
-.wallet-form {
-  @apply space-y-4;
+.modal-actions {
+  @apply flex w-full gap-3;
 }
 
-.form-group {
-  @apply flex flex-col;
+.modal-button {
+  @apply flex-1 justify-center;
 }
 </style>

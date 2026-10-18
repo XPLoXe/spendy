@@ -17,7 +17,7 @@ A simple and minimalistic Nuxt 4 application for tracking daily expenses like a 
 ## Tech Stack
 
 - **Framework**: Nuxt 4
-- **Styling**: TailwindCSS
+- **UI**: Nuxt UI 4 and Tailwind CSS 4, through the shared [`@xploxe/layer`](https://github.com/XPLoXe/design-system) design system (navbar, footer, light/dark and cyberpunk modes)
 - **Database**: Firebase Firestore
 - **Authentication**: Firebase Auth
 - **Language**: TypeScript
@@ -26,8 +26,9 @@ A simple and minimalistic Nuxt 4 application for tracking daily expenses like a 
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- Node.js 24
+- npm
+- A GitHub classic token with the `read:packages` scope (to install `@xploxe/layer` from GitHub Packages)
 - Firebase project
 
 ### Installation
@@ -39,7 +40,10 @@ cd spendy
 ```
 
 2. Install dependencies
+
+   `.npmrc` reads the GitHub Packages token from the `GH_PACKAGES_TOKEN` environment variable. Set it once (never commit the token), then open a new terminal:
 ```bash
+setx GH_PACKAGES_TOKEN <your-token>   # Windows; on macOS/Linux export it in your shell profile
 npm install
 ```
 
@@ -84,7 +88,7 @@ Visit `http://localhost:3000` to see the application.
 
 ```
 spendy/
-├── assets/css/           # Global styles
+├── assets/css/           # Global styles (category colour tokens)
 ├── components/           # Vue components
 │   ├── AuthButton.vue
 │   ├── WalletCard.vue
@@ -94,11 +98,14 @@ spendy/
 ├── composables/          # Vue composables
 │   ├── useAuth.ts
 │   └── useFirestore.ts
+├── layouts/default.vue   # Shared navbar/footer with the account menu
+├── pages/index.vue       # Welcome screen and dashboard
 ├── plugins/              # Nuxt plugins
 │   └── firebase.client.ts
 ├── types/                # TypeScript types
 │   └── index.ts
-└── app.vue              # Main application
+├── app.config.ts         # Design-system settings (site.appId)
+└── app.vue              # App shell (UApp + layout)
 ```
 
 ## Features in Detail
@@ -133,3 +140,4 @@ spendy/
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run typecheck` - Type-check with vue-tsc

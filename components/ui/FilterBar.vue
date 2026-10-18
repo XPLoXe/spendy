@@ -1,69 +1,37 @@
 <template>
   <div class="filter-bar">
-    <input
+    <UInput
       v-if="hasSearchBar"
       v-model="searchModel"
+      class="filter-search"
       type="text"
+      icon="i-lucide-search"
       :placeholder="searchPlaceholder"
-      class="input-field filter-search"
-    >
+    />
 
-    <select
+    <USelect
       v-if="hasCategoryFilter"
       v-model="categoryModel"
-      class="input-field filter-select"
-    >
-      <option value="">
-        All Categories
-      </option>
-      <option
-        v-for="cat in categories"
-        :key="cat.id"
-        :value="cat.id"
-      >
-        {{ cat.name }}
-      </option>
-    </select>
+      class="filter-select"
+      :items="categoryItems"
+      aria-label="Filter by category"
+    />
 
-    <select
+    <USelect
       v-if="hasMonthFilter"
       v-model="monthModel"
-      class="input-field filter-select"
-    >
-      <option value="">
-        All months
-      </option>
-      <option value="current">
-        Current month
-      </option>
-      <option
-        v-for="monthOption in MONTH_OPTIONS"
-        :key="monthOption.value"
-        :value="monthOption.value"
-      >
-        {{ monthOption.label }}
-      </option>
-    </select>
+      class="filter-select"
+      :items="monthItems"
+      aria-label="Filter by month"
+    />
 
-    <select
+    <USelect
       v-if="hasYearFilter"
       v-model="yearModel"
-      class="input-field filter-select"
-    >
-      <option value="">
-        All years
-      </option>
-      <option value="current">
-        Current year
-      </option>
-      <option
-        v-for="yearOption in availableYears"
-        :key="yearOption"
-        :value="yearOption.toString()"
-      >
-        {{ yearOption }}
-      </option>
-    </select>
+      class="filter-select"
+      :items="yearItems"
+      aria-label="Filter by year"
+    />
   </div>
 </template>
 
@@ -104,6 +72,30 @@ const emit = defineEmits([
   'update:year'
 ])
 
+// USelect items can't have an empty value, which is what the filters use for
+// "no filter". The selects use this stand-in and the models map it back to ''.
+const ALL = 'all'
+
+const categoryItems = computed(() => [
+  { value: ALL, label: 'All Categories' },
+  ...props.categories.map(cat => ({ value: cat.id, label: cat.name }))
+])
+
+const monthItems = [
+  { value: ALL, label: 'All months' },
+  { value: 'current', label: 'Current month' },
+  ...MONTH_OPTIONS
+]
+
+const yearItems = computed(() => [
+  { value: ALL, label: 'All years' },
+  { value: 'current', label: 'Current year' },
+  ...props.availableYears.map(year => ({ value: year.toString(), label: year.toString() }))
+])
+
+const toSelect = (value: string) => value || ALL
+const fromSelect = (value: string) => value === ALL ? '' : value
+
 // Writable proxies so each field works as its own v-model on the parent.
 const searchModel = computed({
   get: () => props.search,
@@ -111,32 +103,34 @@ const searchModel = computed({
 })
 
 const categoryModel = computed({
-  get: () => props.category,
-  set: value => emit('update:category', value)
+  get: () => toSelect(props.category),
+  set: value => emit('update:category', fromSelect(value))
 })
 
 const monthModel = computed({
-  get: () => props.month,
-  set: value => emit('update:month', value)
+  get: () => toSelect(props.month),
+  set: value => emit('update:month', fromSelect(value))
 })
 
 const yearModel = computed({
-  get: () => props.year,
-  set: value => emit('update:year', value)
+  get: () => toSelect(props.year),
+  set: value => emit('update:year', fromSelect(value))
 })
 
 </script>
 
 <style scoped>
+@reference "~/assets/css/main.css";
+
 .filter-bar {
   @apply grid w-full grid-cols-2 gap-2 md:flex md:w-auto md:flex-wrap md:items-center;
 }
 
 .filter-search {
-  @apply text-sm w-full md:w-48;
+  @apply w-full md:w-48;
 }
 
 .filter-select {
-  @apply text-sm w-full md:w-32;
+  @apply w-full md:w-36;
 }
 </style>

@@ -1,60 +1,53 @@
 <template>
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="modal-header">
-        Edit Expense
-      </h3>
+  <!-- Mounted by the parent with v-if; dismissing it counts as Cancel. -->
+  <UModal
+    :open="true"
+    title="Edit Expense"
+    @update:open="emit('cancelEdit')"
+  >
+    <template #body>
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Amount</label>
-          <input
+        <UFormField label="Amount">
+          <UInput
             v-model.number="form.amount"
+            class="w-full"
             type="number"
             min="0.01"
             step="0.01"
-            class="input-field"
-          >
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input
+          />
+        </UFormField>
+        <UFormField label="Date">
+          <UInput
             v-model="form.date"
+            class="w-full"
             type="date"
-            class="input-field"
-          >
-        </div>
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select
+          />
+        </UFormField>
+        <UFormField label="Category">
+          <USelect
             v-model="form.categoryId"
-            class="input-field"
-          >
-            <option
-              v-for="category in categories"
-              :key="category.id"
-              :value="category.id"
-            >
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
+            class="w-full"
+            :items="categoryItems"
+          />
+        </UFormField>
       </div>
+    </template>
+
+    <template #footer>
       <div class="modal-actions">
-        <button
-          class="btn-primary modal-button"
-          @click="save"
-        >
+        <UButton @click="save">
           Save
-        </button>
-        <button
-          class="btn-secondary modal-button"
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="outline"
           @click="emit('cancelEdit')"
         >
           Cancel
-        </button>
+        </UButton>
       </div>
-    </div>
-  </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -66,6 +59,10 @@ const props = defineProps<{
   categories: Category[]
 }>()
 const emit = defineEmits(['updateExpense', 'cancelEdit'])
+
+const categoryItems = computed(() =>
+  props.categories.map(category => ({ value: category.id, label: category.name }))
+)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toDate = (date: any): Date => {
@@ -125,31 +122,13 @@ const save = () => {
 </script>
 
 <style scoped>
-.modal-content {
-  @apply bg-white rounded-lg shadow-xl max-w-md w-full mx-4;
-}
-
-.modal-header {
-  @apply text-lg font-semibold px-6 py-4 border-b border-gray-200;
-}
+@reference "~/assets/css/main.css";
 
 .modal-body {
-  @apply px-6 py-4 space-y-4;
-}
-
-.form-group {
-  @apply flex flex-col gap-1;
-}
-
-.form-label {
-  @apply text-sm font-medium text-gray-700;
+  @apply space-y-4;
 }
 
 .modal-actions {
-  @apply flex justify-end space-x-3 px-6 py-4 border-t border-gray-200;
-}
-
-.modal-button {
-  @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  @apply flex w-full justify-end gap-3;
 }
 </style>

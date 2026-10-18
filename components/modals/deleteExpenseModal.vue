@@ -1,46 +1,50 @@
 <template>
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="modal-header">
-        Delete Expense
-      </h3>
-      <div class="modal-body">
-        <p class="modal-text">
-          Are you sure you want to delete this expense?
-        </p>
-        <div
-          v-if="expenseToDelete"
-          class="expense-preview"
-        >
-          <div class="expense-preview-info">
-            <div class="expense-preview-description">
-              {{ description }}
-            </div>
-            <div class="expense-preview-category">
-              {{ categoryName }}
-            </div>
+  <!-- Mounted by the parent with v-if; dismissing it counts as Cancel. -->
+  <UModal
+    :open="true"
+    title="Delete Expense"
+    @update:open="cancelDelete"
+  >
+    <template #body>
+      <p class="modal-text">
+        Are you sure you want to delete this expense?
+      </p>
+      <div
+        v-if="expenseToDelete"
+        class="expense-preview"
+      >
+        <div class="expense-preview-info">
+          <div class="expense-preview-description">
+            {{ description }}
           </div>
-          <div class="expense-preview-amount">
-            -${{ amount }}
+          <div class="expense-preview-category">
+            {{ categoryName }}
           </div>
         </div>
+        <div class="expense-preview-amount">
+          -${{ amount }}
+        </div>
       </div>
+    </template>
+
+    <template #footer>
       <div class="modal-actions">
-        <button
-          class="btn-danger modal-button"
+        <UButton
+          color="error"
           @click="deleteExpense"
         >
           Delete
-        </button>
-        <button
-          class="btn-secondary modal-button"
+        </UButton>
+        <UButton
+          color="neutral"
+          variant="outline"
           @click="cancelDelete"
         >
           Cancel
-        </button>
+        </UButton>
       </div>
-    </div>
-  </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -62,24 +66,14 @@ const cancelDelete = () => {
 </script>
 
 <style scoped>
-.modal-content {
-  @apply bg-white rounded-lg shadow-xl max-w-md w-full mx-4;
-}
-
-.modal-header {
-  @apply text-lg font-semibold px-6 py-4 border-b border-gray-200;
-}
-
-.modal-body {
-  @apply px-6 py-4;
-}
+@reference "~/assets/css/main.css";
 
 .modal-text {
-  @apply text-gray-600 mb-4;
+  @apply text-toned mb-4;
 }
 
 .expense-preview {
-  @apply flex items-center justify-between p-3 bg-gray-50 rounded-lg;
+  @apply flex items-center justify-between p-3 bg-muted rounded-lg;
 }
 
 .expense-preview-info {
@@ -87,22 +81,18 @@ const cancelDelete = () => {
 }
 
 .expense-preview-description {
-  @apply font-medium;
+  @apply font-medium text-highlighted;
 }
 
 .expense-preview-category {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-muted;
 }
 
 .expense-preview-amount {
-  @apply font-semibold;
+  @apply font-semibold text-highlighted;
 }
 
 .modal-actions {
-  @apply flex justify-end space-x-3 px-6 py-4 border-t border-gray-200;
-}
-
-.modal-button {
-  @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  @apply flex w-full justify-end gap-3;
 }
 </style>
