@@ -1,24 +1,21 @@
 <template>
-  <div class="card">
-    <div class="section-header stats-header">
-      <h2 class="section-title">
-        Spending by Category
-      </h2>
-      <UiFilterBar
-        v-model:month="selectedMonth"
-        v-model:year="selectedYear"
-        :available-years="availableYears"
-        has-month-filter
-        has-year-filter
-      />
-    </div>
+  <UCard>
+    <template #header>
+      <UiCardHeader
+        title="Spending by Category"
+        stacked
+      >
+        <UiFilterBar
+          v-model:month="selectedMonth"
+          v-model:year="selectedYear"
+          :available-years="availableYears"
+          has-month-filter
+          has-year-filter
+        />
+      </UiCardHeader>
+    </template>
 
-    <div
-      v-if="loading"
-      class="loading-container"
-    >
-      <div class="loading-spinner" />
-    </div>
+    <UiLoading v-if="loading" />
 
     <div
       v-else-if="categoryTotals.length === 0"
@@ -50,9 +47,11 @@
             @mouseleave="hoveredId = null"
             @click="togglePin(slice.categoryId)"
           >
+            <!-- Set as a style: the theme token is a CSS var(), which the SVG
+                 fill attribute can't take -->
             <path
               :d="slice.path"
-              :fill="slice.color"
+              :style="{ fill: categoryColorVar(slice.color) }"
             />
             <text
               v-if="slice.showLabel"
@@ -94,7 +93,7 @@
         >
           <span
             class="legend-color"
-            :style="{ backgroundColor: cat.color }"
+            :style="{ backgroundColor: categoryColorVar(cat.color) }"
           />
           <span class="legend-name">{{ cat.name }}</span>
           <span class="legend-value">
@@ -104,37 +103,34 @@
       </ul>
     </div>
 
-    <div
+    <template
       v-if="categoryTotals.length > 0"
-      class="stats-summary"
+      #footer
     >
       <div class="stats-summary-content">
         <span class="stats-summary-label">Total spent</span>
         <span class="stats-summary-total">-${{ grandTotal.toFixed(2) }}</span>
       </div>
-    </div>
 
-    <div
-      v-if="categoryTotals.length > 0"
-      class="stats-export"
-    >
-      <button
-        class="btn-secondary export-btn"
-        :disabled="exporting"
-        @click="handleExport"
-      >
-        <ArrowDownTrayIcon class="w-4 h-4" />
-        {{ exporting ? 'Exporting…' : 'Export to Excel' }}
-      </button>
-    </div>
-  </div>
+      <div class="stats-export">
+        <UButton
+          icon="i-lucide-download"
+          color="neutral"
+          variant="outline"
+          :disabled="exporting"
+          @click="handleExport"
+        >
+          {{ exporting ? 'Exporting…' : 'Export to Excel' }}
+        </UButton>
+      </div>
+    </template>
+  </UCard>
 </template>
 
 <script setup lang="ts">
 import type { Expense } from '~/types'
 import { where } from 'firebase/firestore'
-import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline'
-import { MONTH_NAMES } from '~/constants'
+import { MONTH_NAMES, categoryColorVar } from '~/constants'
 
 const { user } = useAuth()
 const { subscribeToCollection } = useFirestore()
@@ -302,8 +298,10 @@ watch(user, () => {
 </script>
 
 <style scoped>
-.stats-header {
-  @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
+@reference "~/assets/css/main.css";
+
+.empty-state {
+  @apply text-center py-8 text-muted;
 }
 
 .stats-content {
@@ -333,8 +331,10 @@ watch(user, () => {
   opacity: 0.4;
 }
 
+/* Inverted text sits on the slice colour: white in light mode, dark on the
+   lighter dark-mode and cyberpunk fills. */
 .slice-label {
-  fill: theme('colors.white');
+  fill: var(--ui-text-inverted);
   font-size: 9px;
   font-weight: 700;
   paint-order: stroke;
@@ -345,13 +345,14 @@ watch(user, () => {
 }
 
 .center-primary {
+  fill: var(--ui-text-highlighted);
   font-size: 15px;
   font-weight: 700;
   pointer-events: none;
 }
 
 .center-secondary {
-  fill: theme('colors.gray.500');
+  fill: var(--ui-text-muted);
   font-size: 8.5px;
   font-weight: 500;
   pointer-events: none;
@@ -366,7 +367,7 @@ watch(user, () => {
 }
 
 .legend-item-active {
-  @apply bg-gray-50;
+  @apply bg-muted;
 }
 
 .legend-color {
@@ -374,15 +375,11 @@ watch(user, () => {
 }
 
 .legend-name {
-  @apply font-medium;
+  @apply font-medium text-highlighted;
 }
 
 .legend-value {
-  @apply ml-auto text-sm text-gray-500;
-}
-
-.stats-summary {
-  @apply mt-4 pt-4 border-t border-gray-200;
+  @apply ml-auto text-sm text-muted;
 }
 
 .stats-summary-content {
@@ -390,18 +387,14 @@ watch(user, () => {
 }
 
 .stats-summary-label {
-  @apply text-gray-600;
+  @apply text-toned;
 }
 
 .stats-summary-total {
-  @apply font-semibold;
+  @apply font-semibold text-highlighted;
 }
 
 .stats-export {
   @apply mt-4 flex justify-end;
-}
-
-.export-btn {
-  @apply inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed;
 }
 </style>

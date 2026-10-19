@@ -1,77 +1,65 @@
 <template>
-  <div class="card">
-    <h2 class="section-title expense-form-title">
-      Add Expense
-    </h2>
+  <UCard>
+    <template #header>
+      <UiCardHeader title="Add Expense" />
+    </template>
 
     <form
       class="expense-form"
       @submit.prevent="addExpense"
     >
-      <div class="form-group">
-        <label class="form-label">Amount</label>
-        <input
+      <UFormField label="Amount">
+        <UInput
           v-model="expense.amount"
+          class="w-full"
           type="number"
           step="0.01"
           min="0"
-          class="input-field"
           placeholder="0.00"
           required
-        >
-      </div>
+        />
+      </UFormField>
 
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <input
+      <UFormField label="Description">
+        <UInput
           v-model="expense.description"
+          class="w-full"
           type="text"
-          class="input-field"
           placeholder="What did you spend on?"
           required
-        >
-      </div>
+        />
+      </UFormField>
 
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <select
+      <UFormField label="Category">
+        <!-- An empty value shows the placeholder, like the old empty option -->
+        <USelect
           v-model="expense.categoryId"
-          class="input-field"
+          class="w-full"
+          :items="categoryItems"
+          placeholder="Select a category"
           required
-        >
-          <option value="">
-            Select a category
-          </option>
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
+        />
+      </UFormField>
 
-      <div class="form-group">
-        <label class="form-label">Date</label>
-        <input
+      <UFormField label="Date">
+        <UInput
           v-model="expense.date"
+          class="w-full"
           type="date"
-          class="input-field"
           :max="today"
           required
-        >
-      </div>
+        />
+      </UFormField>
 
-      <button
+      <UButton
         type="submit"
-        class="btn-primary expense-submit-btn"
+        class="expense-submit-btn"
         :disabled="!expense.amount || !expense.description || !expense.categoryId || !expense.date"
       >
         Add Expense
-      </button>
+      </UButton>
     </form>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
@@ -83,6 +71,10 @@ const { user } = useAuth()
 const { addDocument, subscribeToCollection } = useFirestore()
 
 const categories = ref<Category[]>([])
+
+const categoryItems = computed(() =>
+  categories.value.map(category => ({ value: category.id, label: category.name }))
+)
 
 // Local YYYY-MM-DD string for today (used as the date input default and max)
 const toDateInputValue = (date: Date) => {
@@ -155,19 +147,13 @@ watch(user, () => {
 </script>
 
 <style scoped>
-.expense-form-title {
-  @apply mb-4;
-}
+@reference "~/assets/css/main.css";
 
 .expense-form {
   @apply grid grid-cols-2 gap-x-2 gap-y-4;
 }
 
-.form-group {
-  @apply flex flex-col;
-}
-
 .expense-submit-btn {
-  @apply w-full cursor-pointer;
+  @apply w-full justify-center;
 }
 </style>

@@ -13,9 +13,10 @@ const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || 'spendy-1afd9'
 const authHandlerOrigin = `https://${firebaseProjectId}.firebaseapp.com`
 
 export default defineNuxtConfig({
+  // Shared design system: Nuxt UI, Tailwind CSS 4, navbar, footer and skins.
+  extends: ['@xploxe/layer'],
   nitro: { preset: 'vercel' },
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss'],
   css: ['~/assets/css/main.css'],
   routeRules: {
     '/__/auth/**': { proxy: `${authHandlerOrigin}/__/auth/**` }
