@@ -1,30 +1,27 @@
 <template>
-  <div class="card">
-    <div class="section-header">
-      <h2 class="section-title">
-        Recent Expenses
-      </h2>
-      <UiFilterBar
-        v-model:search="searchQuery"
-        v-model:category="selectedCategory"
-        v-model:month="selectedMonth"
-        v-model:year="selectedYear"
-        :categories="categories"
-        :available-years="availableYears"
-        search-placeholder="Search expenses..."
-        has-search-bar
-        has-category-filter
-        has-month-filter
-        has-year-filter
-      />
-    </div>
+  <UCard>
+    <template #header>
+      <UiCardHeader
+        title="Recent Expenses"
+        stacked
+      >
+        <UiFilterBar
+          v-model:search="searchQuery"
+          v-model:category="selectedCategory"
+          v-model:month="selectedMonth"
+          v-model:year="selectedYear"
+          :categories="categories"
+          :available-years="availableYears"
+          search-placeholder="Search expenses..."
+          has-search-bar
+          has-category-filter
+          has-month-filter
+          has-year-filter
+        />
+      </UiCardHeader>
+    </template>
 
-    <div
-      v-if="loading"
-      class="loading-container"
-    >
-      <div class="loading-spinner" />
-    </div>
+    <UiLoading v-if="loading" />
 
     <div
       v-else-if="filteredExpenses.length === 0"
@@ -45,7 +42,7 @@
         <div class="expense-info">
           <div
             class="expense-category-dot"
-            :style="{ backgroundColor: expense.categoryColor }"
+            :style="{ backgroundColor: categoryColorVar(expense.categoryColor) }"
           />
           <div class="expense-details">
             <div class="expense-description">
@@ -65,27 +62,31 @@
               {{ formatDate(expense.createdAt) }}
             </div>
           </div>
-          <button
-            class="btn-terciary-edit"
+          <UButton
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="ghost"
+            size="xs"
             title="Edit expense"
+            aria-label="Edit expense"
             @click="confirmEditExpense(expense)"
-          >
-            <PencilIcon class="w-4 h-4" />
-          </button>
-          <button
-            class="btn-terciary-delete"
+          />
+          <UButton
+            icon="i-lucide-x"
+            color="error"
+            variant="ghost"
+            size="xs"
             title="Delete expense"
+            aria-label="Delete expense"
             @click="confirmDeleteExpense(expense)"
-          >
-            <XMarkIcon class="w-4 h-4" />
-          </button>
+          />
         </div>
       </div>
     </div>
 
-    <div
+    <template
       v-if="filteredExpenses.length > 0"
-      class="expense-summary"
+      #footer
     >
       <div class="expense-summary-content">
         <span class="expense-count">Total: {{ filteredExpenses.length }} expenses</span>
@@ -93,7 +94,7 @@
           -${{ filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2) }}
         </span>
       </div>
-    </div>
+    </template>
 
     <deleteExpenseModal
       v-if="showDeleteModal"
@@ -109,7 +110,7 @@
       @update-expense="saveEditedExpense"
       @cancel-edit="cancelEdit"
     />
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
@@ -117,7 +118,7 @@ import type { Expense, Category } from '~/types'
 import { where } from 'firebase/firestore'
 import deleteExpenseModal from './modals/deleteExpenseModal.vue'
 import editExpenseModal from './modals/editExpenseModal.vue'
-import { XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
+import { categoryColorVar } from '~/constants'
 
 const { user } = useAuth()
 const { subscribeToCollection, deleteDocument, updateDocument } = useFirestore()
@@ -223,8 +224,10 @@ watch(user, () => {
 </script>
 
 <style scoped>
-.section-header {
-  @apply flex-col items-start gap-3 md:flex-row md:items-center md:justify-between;
+@reference "~/assets/css/main.css";
+
+.empty-state {
+  @apply text-center py-8 text-muted;
 }
 
 .expense-list {
@@ -232,27 +235,27 @@ watch(user, () => {
 }
 
 .expense-item {
-  @apply flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50;
+  @apply flex items-center justify-between gap-3 p-3 rounded-lg border border-default hover:bg-muted;
 }
 
 .expense-info {
-  @apply flex items-center space-x-3;
+  @apply flex min-w-0 items-center gap-3;
 }
 
 .expense-category-dot {
-  @apply w-3 h-3 rounded-full;
+  @apply size-3 shrink-0 rounded-full;
 }
 
 .expense-details {
-  @apply flex flex-col;
+  @apply flex min-w-0 flex-col;
 }
 
 .expense-description {
-  @apply font-medium;
+  @apply font-medium text-highlighted;
 }
 
 .expense-category {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-muted;
 }
 
 .expense-amount {
@@ -260,15 +263,11 @@ watch(user, () => {
 }
 
 .expense-value {
-  @apply font-semibold;
+  @apply font-semibold text-highlighted;
 }
 
 .expense-date {
-  @apply text-sm text-gray-500;
-}
-
-.expense-summary {
-  @apply mt-4 pt-4 border-t border-gray-200;
+  @apply text-sm text-muted;
 }
 
 .expense-summary-content {
@@ -276,14 +275,14 @@ watch(user, () => {
 }
 
 .expense-count {
-  @apply text-gray-500;
+  @apply text-muted;
 }
 
 .expense-total {
-  @apply font-semibold;
+  @apply font-semibold text-highlighted;
 }
 
 .expense-actions {
-  @apply flex flex-row justify-center items-center;
+  @apply flex shrink-0 flex-row justify-center items-center gap-1;
 }
 </style>

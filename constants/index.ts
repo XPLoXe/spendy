@@ -1,6 +1,4 @@
-// App-wide constants shared across components. Colours defined here are the
-// single source of truth: they are also imported into tailwind.config.js so the
-// same values are available as `category-*` utility classes.
+// App-wide constants shared across components.
 
 // Full month names, indexed 0-11 to line up with Date.getMonth().
 export const MONTH_NAMES = [
@@ -16,7 +14,9 @@ export const MONTH_OPTIONS = MONTH_NAMES.map((label, index) => ({
 }))
 
 // Category colour palette. These are data values: they're stored on each
-// category/expense and rendered as inline styles, chart fills and Excel fills.
+// category/expense and used as-is for the Excel export. On screen each one is
+// shown through its theme token (see categoryColorVar), so it follows the
+// light, dark and cyberpunk themes.
 export const CATEGORY_PALETTE = {
   blue: '#3B82F6',
   red: '#EF4444',
@@ -33,3 +33,16 @@ export const CATEGORY_COLORS = Object.values(CATEGORY_PALETTE)
 
 // Fallback colour for a category/expense with no colour set.
 export const DEFAULT_CATEGORY_COLOR = CATEGORY_PALETTE.blue
+
+const PALETTE_KEY_BY_COLOR = new Map(
+  Object.entries(CATEGORY_PALETTE).map(([key, color]) => [color.toUpperCase(), key])
+)
+
+// CSS colour for displaying a stored category colour. Palette colours resolve to
+// their `--category-<key>` theme token (defined in assets/css/main.css); anything
+// else is shown as stored.
+export const categoryColorVar = (color: string) => {
+  // Older documents may lack a colour, so don't assume a string.
+  const key = color ? PALETTE_KEY_BY_COLOR.get(color.toUpperCase()) : undefined
+  return key ? `var(--category-${key})` : color
+}

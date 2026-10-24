@@ -1,104 +1,150 @@
 <template>
-  <div class="card">
-    <div class="section-header">
-      <h2 class="section-title">
-        Categories
-      </h2>
-      <button
-        class="btn-primary category-add-btn"
-        @click="showAddModal = true"
-      >
-        Add Category
-      </button>
-    </div>
+  <UCard>
+    <template #header>
+      <UiCardHeader title="Categories">
+        <UButton @click="showAddModal = true">
+          Add Category
+        </UButton>
+      </UiCardHeader>
+    </template>
 
     <div class="category-grid">
       <div
         v-for="category in categories"
         :key="category.id"
         class="category-item"
-        :style="{ borderColor: category.color + '20', backgroundColor: category.color + '10' }"
+        :style="categoryTint(category.color)"
       >
         <div
           class="category-color-dot"
-          :style="{ backgroundColor: category.color }"
+          :style="{ backgroundColor: categoryColorVar(category.color) }"
         />
-        <span class="category-name">{{ category.name }}</span>
-        <button
-          class="btn-terciary-edit"
-          title="Edit category"
-          @click="openEditModal(category)"
-        >
-          <PencilIcon class="w-4 h-4" />
-        </button>
-        <button
-          class="btn-terciary-delete"
-          title="Delete category"
-          @click="deleteCategory(category.id)"
-        >
-          <XMarkIcon class="w-4 h-4" />
-        </button>
+        <span
+          class="category-name"
+          :title="category.name"
+        >{{ category.name }}</span>
+        <div class="category-actions">
+          <UButton
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            title="Edit category"
+            aria-label="Edit category"
+            @click="openEditModal(category)"
+          />
+          <UButton
+            icon="i-lucide-x"
+            color="error"
+            variant="ghost"
+            size="xs"
+            title="Delete category"
+            aria-label="Delete category"
+            @click="categoryToDelete = category"
+          />
+        </div>
       </div>
     </div>
 
     <!-- Add / Edit Category Modal -->
-    <div
-      v-if="showAddModal"
-      class="modal-overlay"
+    <UModal
+      v-model:open="showAddModal"
+      :title="categoryToEdit ? 'Edit Category' : 'Add New Category'"
+      @after:leave="resetForm"
     >
-      <div class="modal-content">
-        <h3 class="modal-header">
-          {{ categoryToEdit ? 'Edit Category' : 'Add New Category' }}
-        </h3>
+      <template #body>
         <div class="category-form">
-          <div class="form-group">
-            <label class="form-label">Category Name</label>
-            <input
+          <UFormField label="Category Name">
+            <UInput
               v-model="newCategory.name"
+              class="w-full"
               type="text"
-              class="input-field"
               placeholder="Enter category name"
-            >
-          </div>
-          <div class="form-group">
-            <label class="form-label">Color</label>
+            />
+          </UFormField>
+          <UFormField label="Color">
             <div class="color-picker">
-              <button
-                v-for="color in availableColors"
+              <UButton
+                v-for="(color, index) in availableColors"
                 :key="color"
-                class="color-option"
-                :class="newCategory.color === color ? 'color-option-selected' : 'color-option-default'"
-                :style="{ backgroundColor: color }"
+                color="neutral"
+                variant="ghost"
+                square
+                :aria-label="`${colorNames[index]} colour`"
+                :aria-pressed="newCategory.color === color"
                 @click="newCategory.color = color"
-              />
+              >
+                <span
+                  class="color-option"
+                  :class="newCategory.color === color ? 'color-option-selected' : 'color-option-default'"
+                  :style="{ backgroundColor: categoryColorVar(color) }"
+                />
+              </UButton>
             </div>
-          </div>
-          <div class="modal-actions">
-            <button
-              class="btn-primary modal-button"
-              :disabled="!newCategory.name || !newCategory.color"
-              @click="categoryToEdit ? updateCategory() : addCategory()"
-            >
-              {{ categoryToEdit ? 'Save Changes' : 'Add Category' }}
-            </button>
-            <button
-              class="btn-secondary modal-button"
-              @click="showAddModal = false; resetForm()"
-            >
-              Cancel
-            </button>
-          </div>
+          </UFormField>
         </div>
-      </div>
-    </div>
-  </div>
+      </template>
+
+      <template #footer>
+        <div class="modal-actions">
+          <UButton
+            class="modal-button"
+            :disabled="!newCategory.name || !newCategory.color"
+            @click="categoryToEdit ? updateCategory() : addCategory()"
+          >
+            {{ categoryToEdit ? 'Save Changes' : 'Add Category' }}
+          </UButton>
+          <UButton
+            class="modal-button"
+            color="neutral"
+            variant="outline"
+            @click="showAddModal = false; resetForm()"
+          >
+            Cancel
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Delete Category confirmation -->
+    <UModal
+      :open="!!categoryToDelete"
+      title="Delete Category"
+      @update:open="categoryToDelete = null"
+    >
+      <template #body>
+        <p class="modal-text">
+          Are you sure you want to delete this category?
+        </p>
+      </template>
+
+      <template #footer>
+        <div class="modal-actions">
+          <UButton
+            class="modal-button"
+            color="error"
+            @click="deleteCategory"
+          >
+            Delete
+          </UButton>
+          <UButton
+            class="modal-button"
+            color="neutral"
+            variant="outline"
+            @click="categoryToDelete = null"
+          >
+            Cancel
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </UCard>
 </template>
 
 <script setup lang="ts">
 import type { Category } from '~/types'
 import { where } from 'firebase/firestore'
-import { XMarkIcon, PencilIcon } from '@heroicons/vue/24/outline'
-import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR } from '~/constants'
+import { CATEGORY_COLORS, CATEGORY_PALETTE, DEFAULT_CATEGORY_COLOR, categoryColorVar } from '~/constants'
 
 const { user } = useAuth()
 const { addDocument, updateDocument, deleteDocument, getDocuments, subscribeToCollection } = useFirestore()
@@ -106,12 +152,22 @@ const { addDocument, updateDocument, deleteDocument, getDocuments, subscribeToCo
 const categories = ref<Category[]>([])
 const showAddModal = ref(false)
 const categoryToEdit = ref<Category | null>(null)
+const categoryToDelete = ref<Category | null>(null)
 const newCategory = ref({
   name: '',
   color: DEFAULT_CATEGORY_COLOR as string
 })
 
 const availableColors = CATEGORY_COLORS
+// Same order as CATEGORY_COLORS, for the swatches' accessible names.
+const colorNames = Object.keys(CATEGORY_PALETTE)
+
+// Faint wash of the category colour behind its chip (it used to be the hex
+// colour with a 10/20 alpha suffix, which a theme token can't take).
+const categoryTint = (color: string) => ({
+  borderColor: `color-mix(in oklab, ${categoryColorVar(color)} 12.5%, transparent)`,
+  backgroundColor: `color-mix(in oklab, ${categoryColorVar(color)} 6.25%, transparent)`
+})
 
 const addCategory = async () => {
   if (!user.value || !newCategory.value.name || !newCategory.value.color) return
@@ -165,8 +221,11 @@ const updateCategory = async () => {
   }
 }
 
-const deleteCategory = async (categoryId: string) => {
-  if (!confirm('Are you sure you want to delete this category?')) return
+const deleteCategory = async () => {
+  if (!categoryToDelete.value) return
+
+  const categoryId = categoryToDelete.value.id
+  categoryToDelete.value = null
 
   try {
     await deleteDocument('categories', categoryId)
@@ -200,47 +259,57 @@ watch(user, () => {
 </script>
 
 <style scoped>
-.category-add-btn {
-  @apply text-sm;
-}
+@reference "~/assets/css/main.css";
 
 .category-grid {
-  @apply grid grid-cols-2 gap-2 mb-4;
+  @apply grid grid-cols-2 gap-2;
 }
 
 .category-item {
-  @apply flex items-center space-x-2 p-2 rounded-lg border;
+  @apply flex items-center gap-2 p-2 rounded-lg border;
 }
 
 .category-color-dot {
-  @apply w-4 h-4 rounded-full;
+  @apply size-4 shrink-0 rounded-full;
 }
 
 .category-name {
-  @apply text-sm font-medium;
+  @apply min-w-0 truncate text-sm font-medium text-highlighted;
+}
+
+.category-actions {
+  @apply ml-auto flex shrink-0;
 }
 
 .category-form {
   @apply space-y-4;
 }
 
-.form-group {
-  @apply flex flex-col;
-}
-
 .color-picker {
-  @apply flex space-x-2;
+  @apply flex flex-wrap gap-1;
 }
 
 .color-option {
-  @apply w-8 h-8 rounded-full border-2;
+  @apply size-7 rounded-full border-2;
 }
 
 .color-option-selected {
-  @apply border-gray-800;
+  @apply border-inverted;
 }
 
 .color-option-default {
-  @apply border-gray-300;
+  @apply border-accented;
+}
+
+.modal-text {
+  @apply text-toned;
+}
+
+.modal-actions {
+  @apply flex w-full gap-3;
+}
+
+.modal-button {
+  @apply flex-1 justify-center;
 }
 </style>
