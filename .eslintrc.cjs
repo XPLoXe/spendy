@@ -31,4 +31,14 @@ module.exports = {
     useHead: 'readonly',
     useRuntimeConfig: 'readonly'
   },
+  overrides: [
+    {
+      // Tests assert on console output, and the Nuxt UI stand-ins share a file.
+      files: ['tests/**'],
+      rules: {
+        'no-console': 'off',
+        'vue/one-component-per-file': 'off'
+      }
+    }
+  ],
 }
