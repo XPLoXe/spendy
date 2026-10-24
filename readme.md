@@ -141,3 +141,9 @@ spendy/
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Type-check with vue-tsc
+- `npm test` - Run the unit tests once
+- `npm run test:watch` - Run the unit tests in watch mode
+- `npm run test:coverage` - Run the unit tests with a coverage report
+
+The unit tests also run automatically before every `git push` (via a Husky
+`pre-push` hook), and the push is blocked if any of them fail.

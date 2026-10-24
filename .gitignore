@@ -26,6 +26,9 @@ logs
 .vercel
 .claude/settings.local.json
 .vscode
+# Vitest coverage report
+coverage
+
 # Playwright: saved login session and run output
 e2e/.auth
 playwright-report

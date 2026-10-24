@@ -1,0 +1,2 @@
+# Git hooks are shell scripts: keep LF so they run on every platform.
+.husky/* text eol=lf
