@@ -18,6 +18,8 @@ export default defineNuxtConfig({
   nitro: { preset: 'vercel' },
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
+  // Playwright's session, report and results are not app source.
+  ignore: ['e2e/**', 'playwright-report/**', 'test-results/**'],
   routeRules: {
     '/__/auth/**': { proxy: `${authHandlerOrigin}/__/auth/**` }
   },
