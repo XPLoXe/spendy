@@ -1,2 +1,3 @@
 - [App color palette](app-color-palette.md) — Nuxt UI semantic tokens for UI; categories via CATEGORY_PALETTE + categoryColorVar(); never raw Tailwind colors.
 - [No commit without permission](no-commit-without-permission.md) — never run git commit/push unless explicitly told to in that message.
+- [Write unit tests with code](write-unit-tests-with-code.md) — add/update Vitest tests in the same change as any code; `npm test` must be green (pre-push hook enforces it).
