@@ -1,0 +1,2 @@
+# Block the push unless every unit test passes.
+npm test
