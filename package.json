@@ -24,7 +24,7 @@
   "dependencies": {
     "@firebase/auth": "^1.11.0",
     "@firebase/firestore": "^4.9.2",
-    "@xploxe/layer": "^0.1.0",
+    "@xploxe/layer": "^0.1.1",
     "exceljs": "^4.4.0",
     "firebase": "^12.4.0",
     "nuxt": "^4.6.2",
