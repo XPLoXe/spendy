@@ -41,6 +41,7 @@ const deleteTaggedData = async (page: Page) => {
   await tab(page, 'Expenses').click()
   await showAllMonths(page)
   await page.getByPlaceholder('Search expenses...').fill(TAG)
+  await expect(page.getByRole('status', { name: 'Loading' })).toHaveCount(0)
 
   const expenses = expenseItems(page, TAG)
   for (let left = await expenses.count(); left > 0; left--) {
@@ -228,7 +229,7 @@ test('wallet, expenses, categories and stats work end to end', async ({ page, th
 
       await expect(dialog).toBeHidden()
       await expect(categoryItems(page, renamedCategory)).toHaveCount(1)
-      await expect(page.locator('.category-item', { hasText: category }).filter({ hasNotText: renamedCategory })).toHaveCount(0)
+      await expect(categoryItems(page, category).filter({ hasNotText: renamedCategory })).toHaveCount(0)
 
       await tab(page, 'Expenses').click()
       await expect(expenseItems(page, expense).locator('.expense-category')).toHaveText(renamedCategory)
@@ -257,6 +258,8 @@ test('wallet, expenses, categories and stats work end to end', async ({ page, th
     })
   } finally {
     await test.step('clean up and restore the wallet', async () => {
+      // A failed step can leave a modal open or the filters changed; start clean.
+      await openDashboard(page)
       await deleteTaggedData(page)
       // The modal refuses 0 or less, so a wallet that started there stays at 1000.
       if (original.balance > 0) {

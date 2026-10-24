@@ -77,16 +77,28 @@ export const openDashboard = async (page: Page) => {
   }
 
   await expect(page.locator('.wallet-balance')).toBeVisible()
+  // The list shows a spinner until its first Firestore snapshot; counting rows
+  // or reading totals before then sees an empty, all-zero dashboard.
+  await expect(page.getByRole('status', { name: 'Loading' })).toHaveCount(0)
 }
 
 export const readWallet = async (page: Page) => {
   const stats = page.locator('.wallet-stats .stat-value')
-  return {
+  const read = async () => ({
     balance: money(await page.locator('.wallet-balance').innerText()),
-    daily: money(await page.locator('.wallet-daily-budget').innerText()),
-    month: Math.abs(money(await stats.nth(0).innerText())),
-    remaining: money(await stats.nth(1).innerText())
-  }
+    month: Math.abs(money(await stats.nth(0).innerText()))
+  })
+
+  // The card paints $0.00 until its own wallet snapshot lands, independently
+  // of the list, so wait until two reads in a row agree.
+  let last = await read()
+  await expect.poll(async () => {
+    const next = await read()
+    const settled = next.balance === last.balance && next.month === last.month
+    last = next
+    return settled
+  }, { intervals: [500] }).toBe(true)
+  return last
 }
 
 // WalletCard's rule: what is left, spread over the days left in the month.
